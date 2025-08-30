@@ -21,9 +21,7 @@ import { mergeDeepData } from '../fixtures/objects';
 describe('objects', () => {
 	describe('mergeDeep', () => {
 		it.each(mergeDeepData)('$message', ({ destination, sources, output }) => {
-			mergeDeep(destination, ...sources);
-
-			expect(destination).toEqual(output);
+			expect(mergeDeep(destination, ...sources)).toEqual(output);
 		});
 
 		it('should not mutate the sources', () => {
@@ -80,6 +78,15 @@ describe('objects', () => {
 			data.a[0] = 3;
 
 			expect(result.a).toStrictEqual(new Uint8Array([1, 2]));
+		});
+
+		it('should return the destination object if it is not iterable', () => {
+			const destination = 123; // Replace with your desired destination object
+			const sources: Record<string, unknown>[] = []; // Replace with your desired sources array
+
+			const result = mergeDeep(destination as unknown as Record<string, unknown>, ...sources);
+
+			expect(result).toBe(destination);
 		});
 	});
 });

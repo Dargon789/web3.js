@@ -13,9 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The receiptInfo Status will now be be an unsigned integer instead of boolean value to comply with the specification.
 
-<https://github.com/ethereum/execution-apis/blob/773ffd230ae5cd037e32415855cf8d4f1e729b2d/src/schemas/receipt.yaml#L94-L97>
+[https://github.com/ethereum/execution-apis/blob/773ffd230ae5cd037e32415855cf8d4f1e729b2d/src/schemas/receipt.yaml#L94-L97](https://github.com/ethereum/execution-apis/blob/773ffd230ae5cd037e32415855cf8d4f1e729b2d/src/schemas/receipt.yaml#L94-L97)
 
-<details><summary>1.x</summary>
+<details>
+<summary>
+1.x
+</summary>
 <p>
 
 ```ts
@@ -30,7 +33,9 @@ myContract.methods
 </p>
 </details>
 
-<details><summary>4.x</summary>
+<details><summary>
+4.x
+</summary>
 <p>
 
 ```ts
@@ -51,7 +56,9 @@ myContract.methods
 
 In 1.x when following was executed `deploy().send().on(‘sending’, payload => {})`. The `payload` was the complete the JSON-RPC Payload. In 4.x it will just be the transaction which is about to be transmitted. Earlier it was accessible by from `payload.params[0]`, now will be available directly to event handler.
 
-<details><summary>1.x</summary>
+<details><summary>
+1.x
+</summary>
 <p>
 
 ```ts
@@ -67,7 +74,9 @@ myContract
 </p>
 </details>
 
-<details><summary>4.x</summary>
+<details><summary>
+4.x
+</summary>
 <p>
 
 ```ts
@@ -87,7 +96,9 @@ myContract
 
 In 1.x, the `confirmations` handler was invoked with multiple parameters. But in `4.x` there will be one parameter as object but with all the same properties.
 
-<details><summary>1.x</summary>
+<details><summary>
+1.x
+</summary>
 <p>
 
 ```ts
@@ -97,7 +108,9 @@ myContract .send().on(‘confirmation’, (confirmations: number, receipt: objec
 </p>
 </details>
 
-<details><summary>4.x</summary>
+<details><summary>
+4.x
+</summary>
 <p>
 
 ```ts
@@ -118,7 +131,9 @@ myContract .send().on(‘confirmation’, ({confirmations: bigint, receipt: obje
 
 The error message will be different if you try to create a contract object without a `new` keyword.
 
-<details><summary>1.x</summary>
+<details><summary>
+1.x
+</summary>
 <p>
 
 ```ts
@@ -128,7 +143,9 @@ Please use the "new" keyword to instantiate a web3.eth.Contract() object!
 </p>
 </details>
 
-<details><summary>4.x</summary>
+<details><summary>
+4.x
+</summary>
 <p>
 
 ```ts
@@ -150,7 +167,9 @@ In `4.x` you will not get any warning. But `toBlock` still have no effect.
 
 In `1.x` the contract `.send` method was always resolved with `transactionHash`. That enforces user to make an extra call to get any further information. In `4.x` the `.send` function will resolve with `receipt` object.
 
-<details><summary>1.x</summary>
+<details><summary>
+1.x
+</summary>
 <p>
 
 ```ts
@@ -160,7 +179,9 @@ const transactionHash = await myContract.method.MyMethod().send();
 </p>
 </details>
 
-<details><summary>4.x</summary>
+<details><summary>
+4.x
+</summary>
 <p>
 
 ```ts
@@ -299,5 +320,100 @@ Documentation:
 ### Added
 
 -   In case of error events there will be inner error also available for details
+
+## [4.1.0]
+
+### Added
+
+-   Added `dataInputFill` as a ContractInitOption, allowing users to have the choice using property `data`, `input` or `both` for contract methods to be sent to the RPC provider. (#6355)
+-   Added to `Web3Config` property `contractDataInputFill` allowing users to have the choice using property `data`, `input` or `both` for contract methods to be sent to the RPC provider when creating contracts. (#6377)
+
+## [4.1.1]
+
+### Changed
+
+-   The `events` property was added to the `receipt` object (#6410)
+
+## [4.1.2]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.1.3]
+
+### Fixed
+
+-   Will populate `data` for transactions in contract for metamask provider instead of `input` (#6534)
+
+## [4.1.4]
+
+### Changed
+
+-   By default, contracts will fill `data` instead of `input` within method calls (#6622)
+
+## [4.2.0]
+
+### Changed
+
+-   Allow the `deploy` function to accept parameters, even when no ABI was provided to the `Contract`(#6635)
+
+### Fixed
+
+-   Fix and error that happen when trying to get past events by calling `contract.getPastEvents` or `contract.events.allEvents()`, if there is no matching events. (#6647)
+-   Fixed: The Contract is not using the context wallet passed if context was passed at constructor. (#6661)
+
+## [4.3.0]
+
+### Added
+
+-   Types `ContractDeploySend`, `ContractMethodSend`, `Web3PromiEvent` was exported (#6883)
+
+## [4.4.0]
+
+### Fixed
+
+-   Fix an issue with smart contract function overloading (#6922)
+
+### Added
+
+-   Added a console warning in case of an ambiguous call to a solidity method with parameter overloading (#6942)
+-   Added contract.deploy(...).decodeData(...) and contract.decodeMethodData(...) that decode data based on the ABI (#6950)
+
+## [4.5.0]
+
+### Added
+
+-   `defaultReturnFormat` was added to all methods that have `ReturnType` param. (#6947)
+
+## [4.6.0]
+
+### Added
+
+-   `populateTransaction` was added to contract methods (#7124)
+-   Contract has `setTransactionMiddleware` and `getTransactionMiddleware` for automatically passing to `sentTransaction` for `deploy` and `send` functions (#7138)
+
+## [4.7.0]
+
+### Added
+
+-   Added `populateTransaction` to the `contract.deploy(...)` properties. (#7197)
+
+### Changed
+
+-   The returnred properties of `contract.deploy(...)` are structured with a newly created class named `DeployerMethodClass`. (#7197)
+-   Add a missed accepted type for the `abi` parameter, at `dataInputEncodeMethodHelper` and `getSendTxParams`. (#7197)
+
+## [4.7.1]
+
+### Fixed
+
+-   Fix Contract methods input param type any[] (#7340)
+
+## [4.7.2]
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
 
 ## [Unreleased]

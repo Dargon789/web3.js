@@ -1,14 +1,14 @@
 module.exports = {
-	globals: {
-		'ts-jest': {
-			tsconfig: './test/tsconfig.json',
-		},
-	},
 	rootDir: '../..',
 	testMatch: ['<rootDir>/test/**/?(*.)+(spec|test).+(ts|tsx|js)'],
 	setupFilesAfterEnv: ['<rootDir>/test/config/setup.js'],
 	transform: {
-		'^.+\\.(ts|tsx)$': 'ts-jest',
+		'^.+\\.(ts|tsx)$': [
+			'ts-jest',
+			{
+				tsconfig: './test/tsconfig.json',
+			},
+		],
 	},
 	moduleNameMapper: {
 		'^(\\.{1,2}/.*)\\.js$': '$1',
@@ -42,4 +42,5 @@ module.exports = {
 	resetModules: true,
 
 	resetMocks: true,
+	testTimeout: 600000,
 };

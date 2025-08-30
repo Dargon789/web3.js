@@ -17,7 +17,13 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 import { ContractExecutionError } from 'web3-errors';
 import { Contract } from '../../src';
 import { BasicAbi, BasicBytecode } from '../shared_fixtures/build/Basic';
-import { getSystemTestProvider, createTempAccount } from '../fixtures/system_test_utils';
+import {
+	getSystemTestProvider,
+	createTempAccount,
+	getSystemTestBackend,
+	BACKEND,
+	closeOpenConnection,
+} from '../fixtures/system_test_utils';
 
 describe('contract', () => {
 	let contract: Contract<typeof BasicAbi>;
@@ -40,6 +46,10 @@ describe('contract', () => {
 		sendOptions = { from: acc.address, gas: '1000000' };
 
 		contractDeployed = await contract.deploy(deployOptions).send(sendOptions);
+	});
+
+	afterAll(async () => {
+		await closeOpenConnection(contract);
 	});
 
 	describe('methods', () => {
@@ -67,6 +77,8 @@ describe('contract', () => {
 					.send();
 				const res = await deployedTempContract.methods.getStringValue().call();
 				expect(res).toBe('string init value');
+
+				await closeOpenConnection(tempContract);
 			});
 
 			describe('revert handling', () => {
@@ -81,17 +93,59 @@ describe('contract', () => {
 					// eslint-disable-next-line jest/no-standalone-expect
 					expect(error).toBeDefined();
 					// eslint-disable-next-line jest/no-standalone-expect
-					expect(error?.innerError.message).toContain('REVERTED WITH REVERT');
+					expect(error?.cause.message).toContain('REVERTED WITH REVERT');
 				});
 			});
 		});
 
 		describe('send', () => {
-			it('should returns a receipt', async () => {
+			beforeEach(() => {
+				contractDeployed.config.ignoreGasPricing = false;
+			});
+			it('should return a receipt', async () => {
 				const receipt = await contractDeployed.methods
 					.setValues(1, 'string value', true)
 					.send(sendOptions);
 
+				expect(receipt.events).toBeUndefined();
+				expect(receipt).toEqual(
+					expect.objectContaining({
+						// status: BigInt(1),
+						transactionHash: expect.any(String),
+					}),
+				);
+
+				// To avoid issue with the `objectContaining` and `cypress` had to add
+				// these expectations explicitly on each attribute
+				expect(receipt.status).toEqual(BigInt(1));
+			});
+
+			it('should return a receipt with ignoring gas config true', async () => {
+				contractDeployed.config.ignoreGasPricing = true;
+				const receipt = await contractDeployed.methods
+					.setValues(1, 'string value', true)
+					.send(sendOptions);
+
+				expect(receipt.events).toBeUndefined();
+				expect(receipt).toEqual(
+					expect.objectContaining({
+						// status: BigInt(1),
+						transactionHash: expect.any(String),
+					}),
+				);
+
+				// To avoid issue with the `objectContaining` and `cypress` had to add
+				// these expectations explicitly on each attribute
+				expect(receipt.status).toEqual(BigInt(1));
+			});
+
+			it('should return a receipt with ignoring gas config false', async () => {
+				contractDeployed.config.ignoreGasPricing = false;
+				const receipt = await contractDeployed.methods
+					.setValues(1, 'string value', true)
+					.send(sendOptions);
+
+				expect(receipt.events).toBeUndefined();
 				expect(receipt).toEqual(
 					expect.objectContaining({
 						// status: BigInt(1),
@@ -134,9 +188,9 @@ describe('contract', () => {
 			it('should run send method of the contract if data is provided at initiation', async () => {
 				const tempContract = new Contract(BasicAbi, {
 					provider: getSystemTestProvider(),
-					input: BasicBytecode,
 					from: acc.address,
 					gas: '1000000',
+					data: BasicBytecode,
 				});
 				const deployedTempContract = await tempContract
 					.deploy({ arguments: [10, 'string init value'] })
@@ -144,26 +198,40 @@ describe('contract', () => {
 				await deployedTempContract.methods.setValues(10, 'TEST', true).send();
 
 				expect(await deployedTempContract.methods.getStringValue().call()).toBe('TEST');
+
+				await closeOpenConnection(tempContract);
 			});
 
 			it('should returns errors on reverts', async () => {
-				await expect(
-					contractDeployed.methods.reverts().send(sendOptions),
-				).rejects.toMatchObject({
-					name: 'TransactionRevertedWithoutReasonError',
-					receipt: {
-						cumulativeGasUsed: BigInt(21543),
-						from: acc.address,
-						gasUsed: BigInt(21543),
-						logs: [],
-						logsBloom:
-							'0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-						status: BigInt(0),
-						to: contractDeployed.options.address?.toLowerCase(),
-						transactionIndex: BigInt(0),
-						type: BigInt(0),
-					},
-				});
+				// hardhat errors during revert when sending the transaction so no receipt will be returned.
+				if (getSystemTestBackend() === BACKEND.HARDHAT) {
+					// eslint-disable-next-line jest/no-conditional-expect
+					await expect(
+						contractDeployed.methods.reverts().send(sendOptions),
+					).rejects.toMatchObject({
+						name: 'ContractExecutionError',
+						receipt: undefined,
+					});
+				} else {
+					// eslint-disable-next-line jest/no-conditional-expect
+					await expect(
+						contractDeployed.methods.reverts().send(sendOptions),
+					).rejects.toMatchObject({
+						name: 'TransactionRevertedWithoutReasonError',
+						receipt: {
+							cumulativeGasUsed: BigInt(21543),
+							from: acc.address,
+							gasUsed: BigInt(21543),
+							logs: [],
+							logsBloom:
+								'0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+							status: BigInt(0),
+							to: contractDeployed.options.address?.toLowerCase(),
+							transactionIndex: BigInt(0),
+							type: BigInt(2),
+						},
+					});
+				}
 			});
 		});
 	});

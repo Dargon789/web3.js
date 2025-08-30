@@ -114,4 +114,34 @@ Documentation:
 
 -   Dependencies updated
 
+## [1.1.2]
+
+### Changed
+
+-   Dependencies updated
+
+## [1.1.3]
+
+### Changed
+
+-   Dependencies updated
+
+## [1.1.4]
+
+### Fixed
+
+-   Fix web3-types import #6590 (#6589)
+
+## [1.2.0]
+
+### Added
+
+-   Added `getMaxPriorityFeePerGas` method (#6748)
+
+## [1.3.0]
+
+### Changed
+
+-   Change `estimateGas` method to add possibility pass Transaction type (#7000)
+
 ## [Unreleased]

@@ -23,6 +23,8 @@ import {
 	createTempAccount,
 	getSystemTestBackend,
 	describeIf,
+	BACKEND,
+	closeOpenConnection,
 } from '../fixtures/system_test_utils';
 
 describe('contract errors', () => {
@@ -46,11 +48,13 @@ describe('contract errors', () => {
 
 		const sendOptionsLocal = { from: acc.address, gas: '10000000' };
 		deployedContract = await contract.deploy(deployOptions).send(sendOptionsLocal);
-
-		contract.setProvider(getSystemTestProvider());
 	});
 
-	describeIf(getSystemTestBackend() === 'geth')('Test EIP-838 Error Codes', () => {
+	afterAll(async () => {
+		await closeOpenConnection(contract);
+	});
+
+	describeIf(getSystemTestBackend() === BACKEND.GETH)('Test EIP-838 Error Codes', () => {
 		it('Unauthorized', async () => {
 			let error: ContractExecutionError | undefined;
 			try {
@@ -68,7 +72,7 @@ describe('contract errors', () => {
 					'Error happened while trying to execute a function inside a smart contract',
 				),
 				code: ERR_CONTRACT_EXECUTION_REVERTED,
-				innerError: {
+				cause: {
 					errorName: 'Unauthorized',
 					errorSignature: 'Unauthorized()',
 				},
@@ -80,7 +84,7 @@ describe('contract errors', () => {
 				name: 'ContractExecutionError',
 				code: ERR_CONTRACT_EXECUTION_REVERTED,
 				receipt: undefined,
-				innerError: {
+				cause: {
 					code: 3,
 					data: '0x82b42900',
 					errorName: 'Unauthorized',
@@ -113,7 +117,7 @@ describe('contract errors', () => {
 					'Error happened while trying to execute a function inside a smart contract',
 				),
 				code: ERR_CONTRACT_EXECUTION_REVERTED,
-				innerError: {
+				cause: {
 					errorName: 'CustomError',
 					errorSignature: 'CustomError(string)',
 					errorArgs: {
@@ -128,7 +132,7 @@ describe('contract errors', () => {
 				name: 'ContractExecutionError',
 				code: ERR_CONTRACT_EXECUTION_REVERTED,
 				receipt: undefined,
-				innerError: {
+				cause: {
 					code: 3,
 					data: '0x8d6ea8be0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b7265766572746564207573696e6720637573746f6d204572726f720000000000',
 					errorName: 'CustomError',

@@ -28,6 +28,7 @@ export const ERR_OPERATION_ABORT = 204;
 export const ERR_ABI_ENCODING = 205;
 export const ERR_EXISTING_PLUGIN_NAMESPACE = 206;
 export const ERR_INVALID_METHOD_PARAMS = 207;
+export const ERR_MULTIPLE_ERRORS = 208;
 
 // Contract error codes
 export const ERR_CONTRACT = 300;
@@ -154,6 +155,7 @@ export const ERR_INVALID_LARGE_VALUE = 1011;
 export const ERR_INVALID_BLOCK = 1012;
 export const ERR_INVALID_TYPE_ABI = 1013;
 export const ERR_INVALID_NIBBLE_WIDTH = 1014;
+export const ERR_INVALID_INTEGER = 1015;
 
 // Validation error codes
 export const ERR_VALIDATION = 1100;
@@ -161,6 +163,9 @@ export const ERR_VALIDATION = 1100;
 // Core error codes
 export const ERR_CORE_HARDFORK_MISMATCH = 1101;
 export const ERR_CORE_CHAIN_MISMATCH = 1102;
+
+// Schema error codes
+export const ERR_SCHEMA_FORMAT = 1200;
 
 // RPC error codes (EIP-1474)
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1474.md

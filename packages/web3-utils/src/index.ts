@@ -16,6 +16,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 export * from './converters.js';
+export * from './event_emitter.js';
 export * from './validation.js';
 export * from './formatter.js';
 export * from './hash.js';
@@ -31,3 +32,5 @@ export * from './uuid.js';
 export * from './web3_eip1193_provider.js';
 export * from './socket_provider.js';
 export * from './uint8array.js';
+// for backwards compatibility with v1
+export { AbiItem } from 'web3-types';

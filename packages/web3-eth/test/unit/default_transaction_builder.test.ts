@@ -26,7 +26,6 @@ import { Web3Context } from 'web3-core';
 import HttpProvider from 'web3-providers-http';
 import { isNullish } from 'web3-validator';
 import { ethRpcMethods } from 'web3-rpc-methods';
-
 import {
 	Eip1559NotSupportedError,
 	TransactionDataAndInputError,
@@ -36,7 +35,6 @@ import {
 import { defaultTransactionBuilder } from '../../src/utils/transaction_builder';
 
 jest.mock('web3-rpc-methods');
-
 const expectedNetworkId = '0x4';
 jest.mock('web3-net', () => ({
 	getId: jest.fn().mockImplementation(() => expectedNetworkId),
@@ -230,7 +228,7 @@ describe('defaultTransactionBuilder', () => {
 	});
 
 	describe('should populate value', () => {
-		it('should populate with 0x', async () => {
+		it('should populate with 0x0 if not provided', async () => {
 			const input = { ...transaction };
 			delete input.value;
 			delete input.maxPriorityFeePerGas;
@@ -241,7 +239,20 @@ describe('defaultTransactionBuilder', () => {
 				web3Context,
 				fillGasPrice: true,
 			});
-			expect(result.value).toBe('0x');
+			expect(result.value).toBe('0x0');
+		});
+
+		it('should not populate with 0x0 if provided', async () => {
+			const input = { ...transaction };
+			delete input.maxPriorityFeePerGas;
+			delete input.maxFeePerGas;
+
+			const result = await defaultTransactionBuilder({
+				transaction: input,
+				web3Context,
+				fillGasPrice: true,
+			});
+			expect(result.value).not.toBe('0x0');
 		});
 	});
 
@@ -459,7 +470,7 @@ describe('defaultTransactionBuilder', () => {
 	describe('should populate type', () => {
 		it('should throw UnsupportedTransactionTypeError', async () => {
 			const input = { ...transaction };
-			input.type = '0x8'; // // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2718.md#transactions
+			input.type = '0x80'; // // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2718.md#transactions
 
 			await expect(
 				defaultTransactionBuilder({ transaction: input, web3Context, fillGasPrice: true }),

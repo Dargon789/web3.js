@@ -4,6 +4,8 @@
 
 # Web3.js
 
+### Web3.js libraries are being sunset on March 4th, 2025. For migration guides and more details please refer to [Chainsafe blog](https://blog.chainsafe.io/web3-js-sunset/)
+
 [![Dependency Status][downloads-image]][npm-url] ![Unit Test Coverage](https://img.shields.io/codecov/c/github/web3/web3.js/4.x?label=unit%20test%20coverage)
 ![Commit Activity](https://img.shields.io/github/commit-activity/m/web3/web3.js/4.x?label=commit%20activity%20on%204.x)
 ![Contributors](https://img.shields.io/github/contributors/web3/web3.js?label=contributors%20on%20all%20branches)
@@ -43,12 +45,12 @@ yarn add web3
 
 ## Migration Guide
 
--   [Migration Guide from Web3.js 1.x to 4.x](https://docs.web3js.org/guides/web3_upgrade_guide/x/)
-    Breaking changes are listed in migration guide and its first step for migrating from Web3.js 1.x to 4.x. If there is any question or discussion feel free to ask in [Discord](https://discord.gg/yjyvFRP), and in case of any bug or new feature request [open issue](https://github.com/web3/web3.js/issues/new) or create a pull request for [contributions](https://github.com/web3/web3.js/blob/4.x/CONTRIBUTIONS.md).
+-   [Migration Guide from Web3.js 1.x to 4.x](https://docs.web3js.org/guides/web3_upgrade_guide/index)
+    Breaking changes are listed in migration guide and its first step for migrating from Web3.js 1.x to 4.x. If there is any question or discussion feel free to ask in [Discord](https://discord.gg/yjyvFRP), and in case of any bug or new feature request [open issue](https://github.com/web3/web3.js/issues/new) or create a pull request for [contributions](https://github.com/web3/web3.js/blob/4.x/.github/CONTRIBUTING.md).
 
 ## Useful links
 
--   [Web3 tree shaking support guide](https://docs.web3js.org/guides/advanced/web3_tree_shaking_support_guide/)
+-   [Web3 tree shaking support guide](https://docs.web3js.org/guides/advanced/tree_shaking/)
 -   [React App Example](https://github.com/ChainSafe/web3js-example-react-app)
 
 ## Architecture Overview
@@ -76,16 +78,18 @@ yarn add web3
 
 ## Package.json Scripts
 
-| Script           | Description                                                        |
-| ---------------- | ------------------------------------------------------------------ |
-| clean            | Uses `rimraf` to remove `dist/`                                    |
-| build            | Uses `tsc` to build all packages                                   |
-| lint             | Uses `eslint` to lint all packages                                 |
-| lint:fix         | Uses `eslint` to check and fix any warnings                        |
-| format           | Uses `prettier` to format the code                                 |
-| test             | Uses `jest` to run unit tests in each package                      |
-| test:integration | Uses `jest` to run tests under `/test/integration` in each package |
-| test:unit        | Uses `jest` to run tests under `/test/unit` in each package        |
+| Script                         | Description                                                        |
+| ------------------------------ | ------------------------------------------------------------------ |
+| clean                          | Uses `rimraf` to remove `dist/`                                    |
+| build                          | Uses `tsc` to build all packages                                   |
+| lint                           | Uses `eslint` to lint all packages                                 |
+| lint:fix                       | Uses `eslint` to check and fix any warnings                        |
+| format                         | Uses `prettier` to format the code                                 |
+| test                           | Uses `jest` to run unit tests in each package                      |
+| test:integration               | Uses `jest` to run tests under `/test/integration` in each package |
+| test:unit                      | Uses `jest` to run tests under `/test/unit` in each package        |
+| test:manual:long-connection-ws | Runs manual tests for keeping a long WebSocket connection          |
+| test:manual                    | Runs manual tests under `test/manual` in the web3 package          |
 
 [npm-url]: https://npmjs.org/package/web3
 [downloads-image]: https://img.shields.io/npm/dm/web3?label=npm%20downloads

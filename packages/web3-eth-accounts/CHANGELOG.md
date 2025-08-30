@@ -130,4 +130,73 @@ Documentation:
 
 -   Dependencies updated
 
+## [4.0.6]
+
+### Fixed
+
+-   Fixed "The `r` and `s` returned by `sign` to does not always consist of 64 characters" (#6411)
+
+## [4.1.0]
+
+### Added
+
+-   Added public function `privateKeyToPublicKey`
+-   Added exporting `BaseTransaction` from the package (#6493)
+-   Added exporting `txUtils` from the package (#6493)
+
+### Fixed
+
+-   Fixed `recover` function, `v` will be normalized to value 0,1 (#6344)
+
+## [4.1.1]
+
+### Fixed
+
+-   Send Transaction config used to be ignored if the passed `common` did not have a `copy()` and the `chainId` was not provided (#6663)
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+## [4.1.2]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.1.3]
+
+### Changed
+
+-   baseTransaction method updated (#7095)
+
+## [4.2.0]
+
+### Added
+
+-   Added public function `signMessageWithPrivateKey` (#7174)
+
+### Fixed
+
+-   Fix `TransactionFactory.registerTransactionType` not working, if there is a version mistatch between `web3-eth` and `web3-eth-accounts` by saving `extraTxTypes` at `globals`. (#7197)
+
+## [4.2.1]
+
+### Fixed
+
+-   Revert `TransactionFactory.registerTransactionType` if there is a version mistatch between `web3-eth` and `web3-eth-accounts` and fix nextjs problem. (#7216)
+
+## [4.3.0]
+
+### Added
+
+-   `hashMessage` now has a new optional param `skipPrefix` with a default value of `false`. A new function `signRaw` was added to sign a message without prefix. (#7346)
+
+## [4.3.1]
+
+### Removed
+
+-   Move signature related types to web3-types. Re-export them for backwards compatibility. (#7374)
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
 ## [Unreleased]

@@ -24,7 +24,7 @@ import {
 	IVLengthError,
 	PBKDF2IterationsError,
 } from 'web3-errors';
-import { CipherOptions, KeyStore } from 'web3-types';
+import { CipherOptions, KeyStore, Bytes } from 'web3-types';
 import { hexToBytes } from 'web3-utils';
 import { AccessListEIP2930TxData, FeeMarketEIP1559TxData, TxData } from '../../src/tx/types';
 import { sign, signTransaction, encrypt } from '../../src/account';
@@ -99,6 +99,8 @@ export const signatureRecoverData: [string, any][] = [
 	[
 		'Some long text with integers 1233 and special characters and unicode \u1234 as well.',
 		{
+			r: '0x2ac888726c80494b80b63996455d109aef5db27e673dd92f277ac6e48dc300db',
+			s: '0x3dfc7549744c2a33a03a2eaa0f2837f54c5951b80d5e05257d605bc695c2ae7f',
 			address: '0x6E599DA0bfF7A6598AC1224E4985430Bf16458a4',
 			privateKey: '0xcb89ec4b01771c6c8272f4c0aafba2f8ee0b101afb22273b786939a8af7c1912',
 			data: 'Some long text with integers 1233 and special characters and unicode \u1234 as well.',
@@ -110,6 +112,8 @@ export const signatureRecoverData: [string, any][] = [
 	[
 		'Some data',
 		{
+			r: '0xa8037a6116c176a25e6fc224947fde9e79a2deaa0dd8b67b366fbdfdbffc01f9',
+			s: '0x53e41351267b20d4a89ebfe9c8f03c04de9b345add4a52f15bd026b63c8fb150',
 			address: '0xEB014f8c8B418Db6b45774c326A0E64C78914dC0',
 			privateKey: '0xbe6383dad004f233317e46ddb46ad31b16064d14447a95cc1d8c8d4bc61c3728',
 			data: 'Some data',
@@ -121,6 +125,8 @@ export const signatureRecoverData: [string, any][] = [
 	[
 		'Some data!%$$%&@*',
 		{
+			r: '0x05252412b097c5d080c994d1ea12abcee6f1cae23feb225517a0b691a66e1286',
+			s: '0x6b3f54292f9cfef98f390670b4d010fc4af7fcd46e41d72870602c117b14921c',
 			address: '0xEB014f8c8B418Db6b45774c326A0E64C78914dC0',
 			privateKey: '0xbe6383dad004f233317e46ddb46ad31b16064d14447a95cc1d8c8d4bc61c3728',
 			data: 'Some data!%$$%&@*',
@@ -130,16 +136,103 @@ export const signatureRecoverData: [string, any][] = [
 		},
 	],
 	[
+		'102',
+		{
+			r: '0x0442af06beec07a50981386c8ffb38eed2b51decd90980d8c30eda18f112339c',
+			s: '0x080f6f5fb41313d623971020faa2354dd6b62518b758823c03e8b87d5ea4a649',
+			address: '0xEB014f8c8B418Db6b45774c326A0E64C78914dC0',
+			privateKey: '0xbe6383dad004f233317e46ddb46ad31b16064d14447a95cc1d8c8d4bc61c3728',
+			data: '102',
+			// signature done with personal_sign
+			signatureOrV:
+				'0x0442af06beec07a50981386c8ffb38eed2b51decd90980d8c30eda18f112339c080f6f5fb41313d623971020faa2354dd6b62518b758823c03e8b87d5ea4a6491b',
+		},
+	],
+	[
 		// testcase for recover(data, V, R, S)
 		'some data',
 		{
 			signatureOrV: '0x1c',
 			prefixedOrR: '0xb9be9700e1c7fd9c3e5e1b511de5c6f62680480a7f8c68962a74375cabe51c18',
+			r: '0xb9be9700e1c7fd9c3e5e1b511de5c6f62680480a7f8c68962a74375cabe51c18',
 			s: '0x6fcbbcf5b1bc357d3e56bef2ef8a1b3ad7e48564dd886d7636eb1c18e1e41f1b',
 			address: '0x54BF9ed7F22b64a5D69Beea57cFCd378763bcdc5',
 			privateKey: '0x03a0021a87dc354855f900fd15c063bcc9c155c33b8f2321ec294e0933ef29d2',
 			signature:
 				'0xb9be9700e1c7fd9c3e5e1b511de5c6f62680480a7f8c68962a74375cabe51c186fcbbcf5b1bc357d3e56bef2ef8a1b3ad7e48564dd886d7636eb1c18e1e41f1b1c',
+		},
+	],
+];
+
+export const signatureRecoverWithoutPrefixData: [string, any][] = [
+	[
+		'Some long text with integers 1233 and special characters and unicode \u1234 as well.',
+		{
+			prefixedOrR: true,
+			r: '0x66ff35193d5763bbb86428b87cd10451704fa1d00a8831e75cc0eca16701521d',
+			s: '0x5ec294b63778e854929a53825191222415bf93871d091a137f61d92f2f3d37bb',
+			address: '0x6E599DA0bfF7A6598AC1224E4985430Bf16458a4',
+			privateKey: '0xcb89ec4b01771c6c8272f4c0aafba2f8ee0b101afb22273b786939a8af7c1912',
+			data: 'Some long text with integers 1233 and special characters and unicode \u1234 as well.',
+			// signature done with personal_sign
+			signatureOrV:
+				'0x66ff35193d5763bbb86428b87cd10451704fa1d00a8831e75cc0eca16701521d5ec294b63778e854929a53825191222415bf93871d091a137f61d92f2f3d37bb1b',
+		},
+	],
+	[
+		'Some data',
+		{
+			prefixedOrR: true,
+			r: '0xbbae52f4cd6776e66e01673228474866cead8ccc9530e0ae06b42d0f5917865f',
+			s: '0x170e7a9e792288955e884c9b2da7d2c69b69d3b29e24372d1dec1164a7deaec0',
+			address: '0xEB014f8c8B418Db6b45774c326A0E64C78914dC0',
+			privateKey: '0xbe6383dad004f233317e46ddb46ad31b16064d14447a95cc1d8c8d4bc61c3728',
+			data: 'Some data',
+			// signature done with personal_sign
+			signatureOrV:
+				'0xbbae52f4cd6776e66e01673228474866cead8ccc9530e0ae06b42d0f5917865f170e7a9e792288955e884c9b2da7d2c69b69d3b29e24372d1dec1164a7deaec01c',
+		},
+	],
+	[
+		'Some data!%$$%&@*',
+		{
+			prefixedOrR: true,
+			r: '0x91b3ccd107995becaca361e9f282723176181bb9250e8ebb8a5119f5e0b91978',
+			s: '0x5e67773c632e036712befe130577d2954b91f7c5fb4999bc94d80d471dfd468b',
+			address: '0xEB014f8c8B418Db6b45774c326A0E64C78914dC0',
+			privateKey: '0xbe6383dad004f233317e46ddb46ad31b16064d14447a95cc1d8c8d4bc61c3728',
+			data: 'Some data!%$$%&@*',
+			// signature done with personal_sign
+			signatureOrV:
+				'0x91b3ccd107995becaca361e9f282723176181bb9250e8ebb8a5119f5e0b919785e67773c632e036712befe130577d2954b91f7c5fb4999bc94d80d471dfd468b1c',
+		},
+	],
+	[
+		'102',
+		{
+			prefixedOrR: true,
+			r: '0xecbd18fc2919bef2a9371536df0fbabdb09fda9823b15c5ce816ab71d7b5e359',
+			s: '0x3860327ffde34fe72ae5d6abdcdc91e984f936ea478cfb8b1547383d6e4d6a98',
+			address: '0xEB014f8c8B418Db6b45774c326A0E64C78914dC0',
+			privateKey: '0xbe6383dad004f233317e46ddb46ad31b16064d14447a95cc1d8c8d4bc61c3728',
+			data: '102',
+			// signature done with personal_sign
+			signatureOrV:
+				'0xecbd18fc2919bef2a9371536df0fbabdb09fda9823b15c5ce816ab71d7b5e3593860327ffde34fe72ae5d6abdcdc91e984f936ea478cfb8b1547383d6e4d6a981b',
+		},
+	],
+	[
+		// testcase for recover(data, V, R, S)
+		'some data',
+		{
+			signatureOrV: '0x1b',
+			prefixedOrR: '0x48f828a3ed107ce28551a3264d75b18df806d6960c273396dc022baadd0cf26e',
+			r: '0x48f828a3ed107ce28551a3264d75b18df806d6960c273396dc022baadd0cf26e',
+			s: '0x373e1b6709512c2dab9dff4066c6b40d32bd747bdb84469023952bc82123e8cc',
+			address: '0x54BF9ed7F22b64a5D69Beea57cFCd378763bcdc5',
+			privateKey: '0x03a0021a87dc354855f900fd15c063bcc9c155c33b8f2321ec294e0933ef29d2',
+			signature:
+				'0x48f828a3ed107ce28551a3264d75b18df806d6960c273396dc022baadd0cf26e373e1b6709512c2dab9dff4066c6b40d32bd747bdb84469023952bc82123e8cc1b',
 		},
 	],
 ];
@@ -199,6 +292,33 @@ export const invalidPrivateKeytoAccountData: [
 ][] = [
 	['', new InvalidPrivateKeyError()],
 	[new Uint8Array([]), new PrivateKeyLengthError()],
+];
+
+export const validPrivateKeyToPublicKeyData: [
+	Bytes,
+	boolean,
+	string, // private key, isCompressed, public key
+][] = [
+	[
+		'0x1e046a882bb38236b646c9f135cf90ad90a140810f439875f2a6dd8e50fa261f', // test string to uncompressed publickey
+		false,
+		'0x42beb65f179720abaa3ec9a70a539629cbbc5ec65bb57e7fc78977796837e537662dd17042e6449dc843c281067a4d6d8d1a1775a13c41901670d5de7ee6503a',
+	],
+	[
+		'0x1e046a882bb38236b646c9f135cf90ad90a140810f439875f2a6dd8e50fa261f', // test string to compressed publickey
+		true,
+		'0x42beb65f179720abaa3ec9a70a539629cbbc5ec65bb57e7fc78977796837e537',
+	],
+	[
+		hexToBytes('0xd933beabed94a9f23917576596b2bc64ffeacfe5ded09a99c0feee8369bd295d'), // test uint8array to uncompressed publickey
+		false,
+		'0x7891db4ed2d26584b0fa87329c40b398c940c08e7dbeb8e3dad83f34dba284c933fb14b1edd8893fa89af3823fd827ee59044033ca068803030afc294de5f390',
+	],
+	[
+		hexToBytes('0xd933beabed94a9f23917576596b2bc64ffeacfe5ded09a99c0feee8369bd295d'), // test uint8array to compressed publickey
+		true,
+		'0x7891db4ed2d26584b0fa87329c40b398c940c08e7dbeb8e3dad83f34dba284c9',
+	],
 ];
 
 export const validEncryptData: [[any, string | Uint8Array, CipherOptions], KeyStore][] = [
@@ -361,6 +481,17 @@ export const invalidEncryptData: [
 	],
 ];
 
+export const validRecover: [string, string][] = [
+	[
+		'I hereby confirm that I am the sole beneficial owner of the assets involved in the business relationship with Fiat24. \nI hereby undertake to inform Fiat24 proactively of any changes to the information contained herein.',
+		'0xec4f73260ac14882e65995a09359896a0ae8f16bd0d28b0d9171655b4e85271e07cda040be059fdcbf52709e3c993eb50a89ce33f41617dc090dc80a583e3c4f00',
+	], // v < 27
+	[
+		'test',
+		'0xefb42c22baa0143b322e93b24b0903a0ef47a64b716fbb77debbea55a93dec3e4417aff7dce845723240916c6e34cf17c674828b3addfb0afad966334df5b6311b',
+	], // v >= 27
+];
+
 export const invalidKeyStore: [[any, string]][] = [
 	[
 		// invalid keystore error, missing id field
@@ -467,4 +598,14 @@ export const validHashMessageData: [string, string][] = [
 	],
 	['non utf8 string', '0x8862c6a425a83c082216090e4f0e03b64106189e93c29b11d0112e77b477cce2'],
 	['', '0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad'],
+];
+
+export const validHashMessageWithoutPrefixData: [string, string][] = [
+	['🤗', '0x4bf650e97ac50e9e4b4c51deb9e01455c1a9b2f35143bc0a43f1ea5bc9e51856'],
+	[
+		'Some long text with integers 1233 and special characters and unicode \u1234 as well.',
+		'0x6965440cc2890e0f118738d6300a21afb2de316c578dad144aa55c9ea45c0fa7',
+	],
+	['non utf8 string', '0x52000fc43fe3aa422eecafff3e0d82205a1409850c4bd2871dfde932de1fec13'],
+	['', '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'],
 ];

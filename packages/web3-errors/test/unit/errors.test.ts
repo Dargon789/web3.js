@@ -26,6 +26,7 @@ import * as signatureErrors from '../../src/errors/signature_errors';
 import * as transactionErrors from '../../src/errors/transaction_errors';
 import * as utilsErrors from '../../src/errors/utils_errors';
 import * as responseErrors from '../../src/errors/response_errors';
+import * as schemaErrors from '../../src/errors/schema_errors';
 
 import { ConvertValueToString } from '../fixtures/errors';
 import { BaseWeb3Error } from '../../src/web3_error_base';
@@ -50,6 +51,7 @@ describe('errors', () => {
 			...signatureErrors,
 			...transactionErrors,
 			...utilsErrors,
+			...schemaErrors,
 		})) {
 			if (ErrorClass === transactionErrors.InvalidPropertiesForTransactionTypeError) break;
 			// To disable error for the abstract class
@@ -327,6 +329,13 @@ describe('errors', () => {
 				} as JsonRpcError<contractErrors.ProviderErrorData>).toJSON(),
 			).toMatchSnapshot();
 		});
+		it('should return correctly when data is undefined', () => {
+			expect(
+				new contractErrors.Eip838ExecutionError({
+					data: undefined,
+				} as JsonRpcError<contractErrors.ProviderErrorData>).toJSON(),
+			).toMatchSnapshot();
+		});
 	});
 
 	describe('ResponseError', () => {
@@ -377,6 +386,12 @@ describe('errors', () => {
 					error: { code: 123, message: 'error message', data: { a: '10', b: '20' } },
 				}).toJSON(),
 			).toMatchSnapshot();
+		});
+	});
+
+	describe('SchemaFormatError', () => {
+		it('should have valid json structure', () => {
+			expect(new schemaErrors.SchemaFormatError('unsupported').toJSON()).toMatchSnapshot();
 		});
 	});
 });

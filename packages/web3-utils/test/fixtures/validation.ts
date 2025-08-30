@@ -15,7 +15,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Numbers } from 'web3-types';
+import { Numbers, ContractInitOptions } from 'web3-types';
 import { InvalidBlockError } from 'web3-errors';
 
 export const compareBlockNumbersValidData: [[Numbers, Numbers], number][] = [
@@ -77,3 +77,11 @@ export const isBloomValidData: [any, true][] = [
 		true,
 	],
 ];
+
+export const isContractInitValidData: ContractInitOptions[] = [
+	{ dataInputFill: 'data' },
+	{ syncWithContext: true },
+	{ gas: '100000', syncWithContext: true, dataInputFill: 'data' },
+];
+
+export const isContractInitInvalidData: unknown[] = ['', 12, {}];

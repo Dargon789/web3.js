@@ -21,7 +21,11 @@ import { format as formatter } from 'web3-utils';
 
 import Web3, { FMT_BYTES, FMT_NUMBER } from '../../src';
 import { getSystemE2ETestProvider } from './e2e_utils';
-import { closeOpenConnection, getSystemTestBackend } from '../shared_fixtures/system_tests_utils';
+import {
+	closeOpenConnection,
+	getSystemTestBackend,
+	BACKEND,
+} from '../shared_fixtures/system_tests_utils';
 import { toAllVariants } from '../shared_fixtures/utils';
 import { sepoliaBlock, sepoliaBlockData, sepoliaBlockHydrated } from './fixtures/sepolia';
 import { mainnetBlockHydrated } from './fixtures/mainnet_block_hydrated';
@@ -29,7 +33,8 @@ import { mainnetBlock, mainnetBlockData } from './fixtures/mainnet';
 
 describe(`${getSystemTestBackend()} tests - getBlock`, () => {
 	const provider = getSystemE2ETestProvider();
-	const blockData = getSystemTestBackend() === 'sepolia' ? sepoliaBlockData : mainnetBlockData;
+	const blockData =
+		getSystemTestBackend() === BACKEND.SEPOLIA ? sepoliaBlockData : mainnetBlockData;
 
 	let web3: Web3;
 
@@ -52,7 +57,7 @@ describe(`${getSystemTestBackend()} tests - getBlock`, () => {
 				| 'blockHash'
 				| 'blockNumber';
 			hydrated: boolean;
-			format: string;
+			format: FMT_NUMBER;
 		}>({
 			block: ['earliest', 'latest', 'safe', 'finalized', 'blockHash', 'blockNumber'],
 			hydrated: [true, false],
@@ -61,12 +66,12 @@ describe(`${getSystemTestBackend()} tests - getBlock`, () => {
 	)('getBlock', async ({ hydrated, block, format }) => {
 		const result = {
 			...(await web3.eth.getBlock(blockData[block], hydrated, {
-				number: format as FMT_NUMBER,
+				number: format,
 				bytes: FMT_BYTES.HEX,
 			})),
 		};
 		let expectedBlock: Block = ((): Block => {
-			if (getSystemTestBackend() === 'sepolia') {
+			if (getSystemTestBackend() === BACKEND.SEPOLIA) {
 				return hydrated ? sepoliaBlockHydrated : sepoliaBlock;
 			}
 

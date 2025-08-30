@@ -16,13 +16,15 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import * as utils from 'web3-utils';
-import { BlockTags } from 'web3-types';
+import { BlockTags, TransactionInput, Filter } from 'web3-types';
 import { Iban } from 'web3-eth-iban';
+import { FormatterError } from 'web3-errors';
 import {
 	inputAddressFormatter,
 	inputBlockNumberFormatter,
 	inputDefaultBlockNumberFormatter,
 	inputPostFormatter,
+	inputTopicFormatter,
 	outputBigIntegerFormatter,
 	outputBlockFormatter,
 	outputLogFormatter,
@@ -79,6 +81,17 @@ describe('formatters', () => {
 				balance: hexToNumberStringResult,
 				nonce: hexToNumberStringResult,
 			});
+		});
+	});
+
+	describe('inputTopicFormatter', () => {
+		it('check params', () => {
+			expect(inputTopicFormatter('0x09d7bD9E185fbC2d265D8DBe81e5e888E391688b')).toBe(
+				'0x09d7bD9E185fbC2d265D8DBe81e5e888E391688b',
+			);
+			// @ts-expect-error invalid param
+			// eslint-disable-next-line no-null/no-null
+			expect(inputTopicFormatter(null)).toBeNull();
 		});
 	});
 
@@ -256,6 +269,121 @@ describe('formatters', () => {
 		);
 	});
 
+	describe('inputCallFormatter', () => {
+		let txInput: any;
+
+		beforeEach(() => {
+			jest.spyOn(utils, 'isAddress').mockReturnValue(true);
+			txInput = {
+				to: '0xabcd',
+			};
+		});
+
+		it('should format "to" address if provided', () => {
+			expect(formatters.inputCallFormatter({ ...txInput, to: '0xABCD' })).toEqual(
+				expect.objectContaining({ to: '0xabcd' }),
+			);
+		});
+
+		it('should format "from" if defaultAddress is provided', () => {
+			expect(formatters.inputCallFormatter({ ...txInput, to: '0xABCD' }, '0xABCDE')).toEqual(
+				expect.objectContaining({ from: '0xabcde', to: '0xabcd' }),
+			);
+		});
+	});
+
+	describe('inputTransactionFormatter', () => {
+		let txInput: any;
+
+		beforeEach(() => {
+			jest.spyOn(utils, 'isAddress').mockReturnValue(true);
+			txInput = {
+				to: '0xabcd',
+			};
+		});
+		it('should format and populate "from"', () => {
+			expect(
+				formatters.inputTransactionFormatter({ ...txInput, to: '0xabcd', from: '0xABCDE' }),
+			).toEqual(expect.objectContaining({ from: '0xabcde', to: '0xabcd' }));
+		});
+
+		it('should throw an error when from is undefined', () => {
+			expect(() => formatters.inputTransactionFormatter({ ...txInput })).toThrow(
+				new FormatterError('The send transactions "from" field must be defined!'),
+			);
+		});
+	});
+
+	describe('outputTransactionFormatter', () => {
+		it('should correctly format blockNumber from hex to number', () => {
+			const txInput: TransactionInput = {
+				to: '0x1234567890abcdef',
+				from: '0xabcdef1234567890',
+				gas: '0x123456',
+				gasPrice: '0x987654321',
+				nonce: '0x1',
+				value: '0x9876543210',
+				blockNumber: '0x123',
+				transactionIndex: '0x1',
+				maxFeePerGas: '0x87654321',
+				maxPriorityFeePerGas: '0x7654321',
+				type: '0x1',
+			};
+
+			const formattedTxOutput = formatters.outputTransactionFormatter(txInput);
+			// should return the mocked values;
+			expect(formattedTxOutput.blockNumber).toBe(123);
+			expect(formattedTxOutput.to).toBe('toChecksumAddress');
+			expect(formattedTxOutput.from).toBe('toChecksumAddress');
+			expect(formattedTxOutput.gas).toBe(123);
+			expect(formattedTxOutput.nonce).toBe(123);
+			expect(formattedTxOutput.transactionIndex).toBe(123);
+			expect(formattedTxOutput.value).toBe(12345);
+			expect(formattedTxOutput.maxFeePerGas).toBe(12345);
+			expect(formattedTxOutput.maxPriorityFeePerGas).toBe(12345);
+			expect(formattedTxOutput.type).toBe(123);
+		});
+
+		it('should make "to" property undefined', () => {
+			const txInput = { gas: '0x', nonce: '1', value: '0x' };
+			const formattedTxOutput = formatters.outputTransactionFormatter(txInput);
+
+			expect(formattedTxOutput.to).toBeUndefined();
+		});
+	});
+
+	describe('inputLogFormatter', () => {
+		beforeAll(() => {
+			const actualUtils = jest.requireActual('web3-utils');
+			jest.spyOn(utils, 'mergeDeep').mockImplementation(actualUtils.mergeDeep);
+		});
+		it('should correctly format a filter with all fields provided', () => {
+			const filter: Filter = {
+				fromBlock: '0x1',
+				toBlock: '0x2',
+				address: '0x1234567890abcdef1234567890abcdef12345678',
+				topics: ['0x123', ['0x456', '0x789']],
+			};
+
+			const formattedFilter = formatters.inputLogFormatter(filter);
+
+			expect(formattedFilter.fromBlock).toBe('0x1');
+			expect(formattedFilter.toBlock).toBe('0x2');
+			expect(formattedFilter.address).toBe('0x1234567890abcdef1234567890abcdef12345678');
+			expect(formattedFilter.topics).toEqual(['0x123', ['0x456', '0x789']]);
+		});
+		it('should correctly format a filter with no fromBlock', () => {
+			const filter: Filter = {
+				address: ['0x123', '0x222'],
+			};
+
+			const formattedFilter = formatters.inputLogFormatter(filter);
+
+			expect(formattedFilter.fromBlock).toBe('latest');
+			expect(formattedFilter.address).toEqual(['0x123', '0x222']);
+		});
+	});
+
 	describe('outputLogFormatter', () => {
 		it('should set log id from "blockHash", "transactionHash" and "logIndex"', () => {
 			const result = outputLogFormatter({
@@ -320,6 +448,12 @@ describe('formatters', () => {
 	describe('outputTransactionReceiptFormatter', () => {
 		const validReceipt = { cumulativeGasUsed: '0x1234', gasUsed: '0x4567' };
 
+		it('should be FormatterError', () => {
+			// @ts-expect-error invalid param
+			expect(() => outputTransactionReceiptFormatter(1)).toThrow(
+				`Received receipt is invalid: 1`,
+			);
+		});
 		it('should convert "blockNumber" from hex to number', () => {
 			const result = outputTransactionReceiptFormatter({
 				...validReceipt,
@@ -379,6 +513,11 @@ describe('formatters', () => {
 
 			expect(formatters.outputLogFormatter).toHaveBeenCalledWith(logs[1], 1, logs);
 			expect(result.logs).toEqual(['outputLogFormatterResult', 'outputLogFormatterResult']);
+		});
+
+		it('when log doesn`t have id', () => {
+			const res = formatters.outputLogFormatter({ blockHash: '0x1', logIndex: '0x1' });
+			expect(res.id).toBeUndefined();
 		});
 
 		it('should convert "contractAddress" to checksum address', () => {
@@ -537,12 +676,13 @@ describe('formatters', () => {
 		});
 
 		it('should convert "baseFeePerGas" from hex to number', () => {
+			jest.spyOn(formatters, 'outputBigIntegerFormatter').mockReturnValue(123);
 			const result = outputBlockFormatter({
 				...validBlock,
 				baseFeePerGas: 'baseFeePerGas',
 			} as any);
 
-			expect(utils.hexToNumber).toHaveBeenCalledWith('baseFeePerGas');
+			expect(outputBigIntegerFormatter).toHaveBeenCalledWith('baseFeePerGas');
 			expect(result).toEqual(expect.objectContaining({ baseFeePerGas: hexToNumberResult }));
 		});
 	});

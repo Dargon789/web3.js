@@ -15,7 +15,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { TypedObject, TypedObjectAbbreviated, Bytes } from 'web3-types';
+import { TypedObject, TypedObjectAbbreviated, Bytes, Sha3Input } from 'web3-types';
 import { hexToBytes } from '../../src/converters';
 
 export const sha3Data: [Bytes, string | undefined][] = [
@@ -256,6 +256,7 @@ export const encodePackData: [TypedObject[] | TypedObjectAbbreviated[], any][] =
 		'0x12480000000000000000000000000000000000000000000000000000000000003c69a194aaf415ba5d6afca734660d0a3d45acdc05d54cd1ca89a8988e7625b4',
 	],
 	[[{ type: 'bytes4[]', value: ['0x11223344', '0x22334455'] }], '0x1122334422334455'],
+	[[{ type: '', value: '31323334' }], '0x'],
 ];
 
 export const encodePackedInvalidData: [any, string][] = [
@@ -285,9 +286,13 @@ export const encodePackedInvalidData: [any, string][] = [
 		{ type: 'bytes32', value: '0x1' },
 		'Invalid value given "0x1". Error: can not parse as byte data.',
 	],
+	[
+		[[{ type: 'string', value: '31323334' }], [{ type: '', value: '31323334' }]],
+		'Autodetection of array types is not supported.',
+	],
 ];
 
-export const keccak256ValidData: [string | Uint8Array | bigint, string][] = [
+export const keccak256ValidData: [string | Uint8Array | bigint | number[], string][] = [
 	['my data', '0x8e0c48154711500d6fa119cc31df4dec339091e8b426cf4109a769fe89baad31'],
 	[
 		new Uint8Array(Buffer.from('my data')),
@@ -298,9 +303,61 @@ export const keccak256ValidData: [string | Uint8Array | bigint, string][] = [
 		'0x2d19cd91fbcc44e6412f92c11da7907cdedb1ace04c47447b42a61f1cd63b85a',
 	],
 	[BigInt(3), '0x2a80e1ef1d7842f27f2e6be0972bb708b9a135c38860dbe73c27c3486c34f4de'],
+	[[0x3], '0x69c322e3248a5dfc29d73c5b0553b0185a35cd5bb6386747517ef7e53b15e287'],
+	[new Uint8Array([0x3]), '0x69c322e3248a5dfc29d73c5b0553b0185a35cd5bb6386747517ef7e53b15e287'],
 ];
 
 export const elementaryNameValidData: [any, string][] = [
 	['uint128', '128'],
 	['int256', '256'],
+];
+
+export const soliditySha3BigIntValidData: [Sha3Input[], string][] = [
+	[[3434], '0xf219fa5590f999dc677e94dd9cf99cf14103d2f4323898edb31db982d5909687'],
+	[[BigInt(3434)], '0xf219fa5590f999dc677e94dd9cf99cf14103d2f4323898edb31db982d5909687'],
+	[
+		[{ t: 'bigint', v: BigInt(3434) }],
+		'0xf219fa5590f999dc677e94dd9cf99cf14103d2f4323898edb31db982d5909687',
+	],
+
+	[[0], '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563'],
+	[[BigInt(0)], '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563'],
+	[
+		[{ t: 'bigint', v: BigInt(0) }],
+		'0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563',
+	],
+
+	[[90071992547409], '0x290998ceba657b344f8ee112246f32b20ecaad06d8d9ad09748de1821b9ef73e'],
+	[
+		[BigInt(90071992547409)],
+		'0x290998ceba657b344f8ee112246f32b20ecaad06d8d9ad09748de1821b9ef73e',
+	],
+	[
+		[{ t: 'bigint', v: BigInt(90071992547409) }],
+		'0x290998ceba657b344f8ee112246f32b20ecaad06d8d9ad09748de1821b9ef73e',
+	],
+
+	[['0x70696e67', 0], '0xe54a278c69f07b6b4f0736dc55c389cd2d3f31365b090c9f76a414fb51552c53'],
+	[
+		['0x70696e67', BigInt(0)],
+		'0xe54a278c69f07b6b4f0736dc55c389cd2d3f31365b090c9f76a414fb51552c53',
+	],
+
+	[['0x70696e67', 10], '0x418e921c5c859d5f560b89ad03a6672907d66de336392a5178ea69281feff40a'],
+	[
+		['0x70696e67', BigInt(10)],
+		'0x418e921c5c859d5f560b89ad03a6672907d66de336392a5178ea69281feff40a',
+	],
+
+	/*
+	  //These hash values are generated using contract with function like:
+	  
+	      function func90071992547409() external pure returns (bytes32) {
+        		return keccak256(abi.encodePacked(int(90071992547409))) ;}
+	 */
+];
+
+export const getStorageSlotNumForLongStringValidData: [string | number, string | undefined][] = [
+	[0, '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563'],
+	['0', '0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563'],
 ];

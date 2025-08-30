@@ -40,6 +40,7 @@ describe('Web3 net', () => {
 
 	it('should be able to get id', async () => {
 		const networkId = await web3Net.getId();
+		// eslint-disable-next-line jest/no-conditional-expect
 		expect(networkId).toBe(BigInt(1337));
 	});
 

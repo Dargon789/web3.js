@@ -28,6 +28,8 @@ import {
 	recoverTransaction,
 	sign,
 	signTransaction,
+	privateKeyToPublicKey,
+	signRaw,
 } from '../../src/account';
 import {
 	invalidDecryptData,
@@ -36,15 +38,21 @@ import {
 	invalidPrivateKeytoAccountData,
 	invalidPrivateKeyToAddressData,
 	signatureRecoverData,
+	signatureRecoverWithoutPrefixData,
 	transactionsTestData,
 	validDecryptData,
 	validEncryptData,
 	validHashMessageData,
+	validHashMessageWithoutPrefixData,
 	validPrivateKeytoAccountData,
 	validPrivateKeyToAddressData,
+	validPrivateKeyToPublicKeyData,
+	validRecover,
 } from '../fixtures/account';
 import { TransactionFactory } from '../../src/tx/transactionFactory';
 import { TxData } from '../../src/tx/types';
+
+jest.setTimeout(25000);
 
 describe('accounts', () => {
 	describe('create', () => {
@@ -90,6 +98,13 @@ describe('accounts', () => {
 			});
 		});
 	});
+	describe('privateKeyToPublicKey', () => {
+		describe('valid cases', () => {
+			it.each(validPrivateKeyToPublicKeyData)('%s', (privateKey, isCompressed, output) => {
+				expect(privateKeyToPublicKey(privateKey, isCompressed)).toEqual(output);
+			});
+		});
+	});
 
 	describe('Signing and Recovery of Transaction', () => {
 		it.each(transactionsTestData)('sign transaction', async txData => {
@@ -131,17 +146,50 @@ describe('accounts', () => {
 		});
 	});
 
+	describe('Hash Message Without Prefix', () => {
+		it.each(validHashMessageWithoutPrefixData)('%s', (message, hash) => {
+			expect(hashMessage(message, true)).toEqual(hash);
+		});
+	});
+
 	describe('Sign Message', () => {
 		describe('sign', () => {
 			it.each(signatureRecoverData)('%s', (data, testObj) => {
 				const result = sign(data, testObj.privateKey);
 				expect(result.signature).toEqual(testObj.signature || testObj.signatureOrV); // makes sure we get signature and not V value
+				expect(result.r).toEqual(testObj.r);
+				expect(result.s).toEqual(testObj.s);
 			});
 		});
 
 		describe('recover', () => {
 			it.each(signatureRecoverData)('%s', (data, testObj) => {
 				const address = recover(data, testObj.signatureOrV, testObj.prefixedOrR, testObj.s);
+				expect(address).toEqual(testObj.address);
+			});
+		});
+	});
+
+	describe('Sign Raw Message', () => {
+		describe('signRaw', () => {
+			it.each(signatureRecoverWithoutPrefixData)('%s', (data, testObj) => {
+				const result = signRaw(data, testObj.privateKey);
+				expect(result.signature).toEqual(testObj.signature || testObj.signatureOrV); // makes sure we get signature and not V value
+				expect(result.r).toEqual(testObj.r);
+				expect(result.s).toEqual(testObj.s);
+			});
+		});
+
+		describe('recover', () => {
+			it.each(signatureRecoverWithoutPrefixData)('%s', (data, testObj) => {
+				const hashedMessage = hashMessage(data, true); // hash the message first without prefix
+				const address = recover(
+					hashedMessage,
+					testObj.signatureOrV,
+					testObj.prefixedOrR,
+					testObj.s,
+					true, // make sure the prefixed is true since we already hashed the message
+				);
 				expect(address).toEqual(testObj.address);
 			});
 		});
@@ -211,6 +259,12 @@ describe('accounts', () => {
 				const result = decrypt(input[0], input[1]);
 
 				await expect(result).rejects.toThrow(Web3ValidatorError);
+			});
+		});
+
+		describe('valid signatures for recover', () => {
+			it.each(validRecover)('&s', (data, signature) => {
+				recover(data, signature);
 			});
 		});
 	});

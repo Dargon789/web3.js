@@ -21,6 +21,7 @@ import {
 	TransactionRevertInstructionError,
 	TransactionRevertWithCustomError,
 	InvalidResponseError,
+	TransactionPollingTimeoutError,
 } from 'web3-errors';
 import {
 	FormatType,
@@ -32,13 +33,17 @@ import {
 	Numbers,
 	Transaction,
 	TransactionReceipt,
+	TransactionWithFromAndToLocalWalletIndex,
+	TransactionWithFromLocalWalletIndex,
+	TransactionWithToLocalWalletIndex,
 } from 'web3-types';
+import { Schema } from 'web3-validator';
 
 export type InternalTransaction = FormatType<Transaction, typeof ETH_DATA_FORMAT>;
 
-export type SendTransactionEvents<ReturnFormat extends DataFormat> = {
-	sending: FormatType<Transaction, typeof ETH_DATA_FORMAT>;
-	sent: FormatType<Transaction, typeof ETH_DATA_FORMAT>;
+export type SendTransactionEventsBase<ReturnFormat extends DataFormat, TxType> = {
+	sending: FormatType<TxType, typeof ETH_DATA_FORMAT>;
+	sent: FormatType<TxType, typeof ETH_DATA_FORMAT>;
 	transactionHash: FormatType<Bytes, ReturnFormat>;
 	receipt: FormatType<TransactionReceipt, ReturnFormat>;
 	confirmation: {
@@ -50,27 +55,17 @@ export type SendTransactionEvents<ReturnFormat extends DataFormat> = {
 		| TransactionRevertedWithoutReasonError<FormatType<TransactionReceipt, ReturnFormat>>
 		| TransactionRevertInstructionError<FormatType<TransactionReceipt, ReturnFormat>>
 		| TransactionRevertWithCustomError<FormatType<TransactionReceipt, ReturnFormat>>
+		| TransactionPollingTimeoutError
 		| InvalidResponseError
 		| ContractExecutionError;
 };
 
-export type SendSignedTransactionEvents<ReturnFormat extends DataFormat> = {
-	sending: FormatType<Bytes, typeof ETH_DATA_FORMAT>;
-	sent: FormatType<Bytes, typeof ETH_DATA_FORMAT>;
-	transactionHash: FormatType<Bytes, ReturnFormat>;
-	receipt: FormatType<TransactionReceipt, ReturnFormat>;
-	confirmation: {
-		confirmations: FormatType<Numbers, ReturnFormat>;
-		receipt: FormatType<TransactionReceipt, ReturnFormat>;
-		latestBlockHash: FormatType<Bytes, ReturnFormat>;
-	};
-	error:
-		| TransactionRevertedWithoutReasonError<FormatType<TransactionReceipt, ReturnFormat>>
-		| TransactionRevertInstructionError<FormatType<TransactionReceipt, ReturnFormat>>
-		| TransactionRevertWithCustomError<FormatType<TransactionReceipt, ReturnFormat>>
-		| InvalidResponseError
-		| ContractExecutionError;
-};
+export type SendTransactionEvents<ReturnFormat extends DataFormat> = SendTransactionEventsBase<
+	ReturnFormat,
+	Transaction
+>;
+export type SendSignedTransactionEvents<ReturnFormat extends DataFormat> =
+	SendTransactionEventsBase<ReturnFormat, Bytes>;
 
 export interface SendTransactionOptions<ResolveType = TransactionReceipt> {
 	ignoreGasPricing?: boolean;
@@ -97,3 +92,22 @@ export interface RevertReasonWithCustomError extends RevertReason {
 	customErrorDecodedSignature: string;
 	customErrorArguments: Record<string, unknown>;
 }
+
+export type TransactionMiddlewareData =
+	| Transaction
+	| TransactionWithFromLocalWalletIndex
+	| TransactionWithToLocalWalletIndex
+	| TransactionWithFromAndToLocalWalletIndex;
+
+export interface TransactionMiddleware {
+	// for transaction processing before signing
+	processTransaction(
+		transaction: TransactionMiddlewareData,
+		options?: { [key: string]: unknown },
+	): Promise<TransactionMiddlewareData>;
+}
+
+export type CustomTransactionSchema = {
+	type: string;
+	properties: Record<string, Schema>;
+};

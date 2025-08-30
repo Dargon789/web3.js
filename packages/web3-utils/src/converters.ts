@@ -15,61 +15,72 @@ You should have received a copy of the GNU Lesser General Public License
 along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @module Utils
+ */
+
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
-import { bytesToUtf8, utf8ToBytes } from 'ethereum-cryptography/utils.js';
+import { bytesToUtf8, utf8ToBytes as ecUtf8ToBytes } from 'ethereum-cryptography/utils.js';
 import { Address, Bytes, HexString, Numbers, ValueTypes } from 'web3-types';
 import {
 	isAddress,
 	isHex,
 	isHexStrict,
-	isNullish,
 	isInt,
+	isUInt,
+	isNullish,
+	utils,
 	utils as validatorUtils,
 	validator,
+	bigintPower,
 } from 'web3-validator';
 
 import {
 	HexProcessingError,
 	InvalidAddressError,
+	InvalidBooleanError,
 	InvalidBytesError,
 	InvalidNumberError,
 	InvalidUnitError,
+	InvalidIntegerError,
 } from 'web3-errors';
-
-const base = BigInt(10);
-const expo10 = (expo: number) => base ** BigInt(expo);
+import { isUint8Array } from './uint8array.js';
 
 // Ref: https://ethdocs.org/en/latest/ether.html
+// Note: this could be simplified using ** operator, but babel does not handle it well (https://github.com/babel/babel/issues/13109)
 /** @internal */
 export const ethUnitMap = {
-	noether: BigInt('0'),
+	noether: BigInt(0),
 	wei: BigInt(1),
-	kwei: expo10(3),
-	Kwei: expo10(3),
-	babbage: expo10(3),
-	femtoether: expo10(3),
-	mwei: expo10(6),
-	Mwei: expo10(6),
-	lovelace: expo10(6),
-	picoether: expo10(6),
-	gwei: expo10(9),
-	Gwei: expo10(9),
-	shannon: expo10(9),
-	nanoether: expo10(9),
-	nano: expo10(9),
-	szabo: expo10(12),
-	microether: expo10(12),
-	micro: expo10(12),
-	finney: expo10(15),
-	milliether: expo10(15),
-	milli: expo10(15),
-	ether: expo10(18),
-	kether: expo10(21),
-	grand: expo10(21),
-	mether: expo10(24),
-	gether: expo10(27),
-	tether: expo10(30),
+	kwei: BigInt(1000),
+	Kwei: BigInt(1000),
+	babbage: BigInt(1000),
+	femtoether: BigInt(1000),
+	mwei: BigInt(1000000),
+	Mwei: BigInt(1000000),
+	lovelace: BigInt(1000000),
+	picoether: BigInt(1000000),
+	gwei: BigInt(1000000000),
+	Gwei: BigInt(1000000000),
+	shannon: BigInt(1000000000),
+	nanoether: BigInt(1000000000),
+	nano: BigInt(1000000000),
+	szabo: BigInt(1000000000000),
+	microether: BigInt(1000000000000),
+	micro: BigInt(1000000000000),
+	finney: BigInt(1000000000000000),
+	milliether: BigInt(1000000000000000),
+	milli: BigInt(1000000000000000),
+	ether: BigInt('1000000000000000000'),
+	kether: BigInt('1000000000000000000000'),
+	grand: BigInt('1000000000000000000000'),
+	mether: BigInt('1000000000000000000000000'),
+	gether: BigInt('1000000000000000000000000000'),
+	tether: BigInt('1000000000000000000000000000000'),
 };
+
+const PrecisionLossWarning =
+	'Warning: Using type `number` with values that are large or contain many decimals may cause loss of precision, it is recommended to use type `string` or `BigInt` when using conversion methods';
 
 export type EtherUnits = keyof typeof ethUnitMap;
 /**
@@ -86,7 +97,7 @@ export type EtherUnits = keyof typeof ethUnitMap;
 export const bytesToUint8Array = (data: Bytes): Uint8Array | never => {
 	validator.validate(['bytes'], [data]);
 
-	if (data instanceof Uint8Array) {
+	if (isUint8Array(data)) {
 		return data;
 	}
 
@@ -181,7 +192,7 @@ export const numberToHex = (value: Numbers, hexstrict?: boolean): HexString => {
 	let updatedValue = validatorUtils.numberToHex(value);
 	if (hexstrict) {
 		if (!updatedValue.startsWith('-') && updatedValue.length % 2 === 1) {
-			// To avoid duplicate a circular dependancy we will not be using the padLeft method
+			// To avoid duplicate a circular dependency we will not be using the padLeft method
 			updatedValue = '0x0'.concat(updatedValue.slice(2));
 		} else if (updatedValue.length % 2 === 0 && updatedValue.startsWith('-'))
 			updatedValue = '-0x0'.concat(updatedValue.slice(3));
@@ -216,6 +227,7 @@ export const hexToNumberString = (data: HexString): string => hexToNumber(data).
  * ```ts
  * console.log(utf8ToHex('web3.js'));
  * > "0x776562332e6a73"
+ * ```
  *
  */
 export const utf8ToHex = (str: string): HexString => {
@@ -263,6 +275,8 @@ export const toUtf8 = (input: HexString | Uint8Array) => {
 	validator.validate(['bytes'], [input]);
 	return bytesToUtf8(input);
 };
+
+export const utf8ToBytes = ecUtf8ToBytes;
 
 /**
  * @alias hexToUtf8
@@ -353,6 +367,10 @@ export const toHex = (
 		return returnType ? 'bigint' : numberToHex(value);
 	}
 
+	if (isUint8Array(value)) {
+		return returnType ? 'bytes' : bytesToHex(value);
+	}
+
 	if (typeof value === 'object' && !!value) {
 		return returnType ? 'string' : utf8ToHex(JSON.stringify(value));
 	}
@@ -365,8 +383,20 @@ export const toHex = (
 		if (isHexStrict(value)) {
 			return returnType ? 'bytes' : value;
 		}
-		if (isHex(value) && !isInt(value)) {
+		if (isHex(value) && !isInt(value) && !isUInt(value)) {
 			return returnType ? 'bytes' : `0x${value}`;
+		}
+		if (isHex(value) && !isInt(value) && isUInt(value)) {
+			// This condition seems problematic because meeting
+			// both conditions `!isInt(value) && isUInt(value)` should be impossible.
+			// But a value pass for those conditions: "101611154195520776335741463917853444671577865378275924493376429267637792638729"
+			// Note that according to the docs: it is supposed to be treated as a string (https://docs.web3js.org/guides/web3_upgrade_guide/x/web3_utils_migration_guide#conversion-to-hex)
+			// In short, the strange is that isInt(value) is false but isUInt(value) is true for the value above.
+			// TODO: isUInt(value) should be investigated.
+
+			// However, if `toHex('101611154195520776335741463917853444671577865378275924493376429267637792638729', true)` is called, it will return `true`.
+			// But, if `toHex('101611154195520776335741463917853444671577865378275924493376429267637792638729')` is called, it will throw inside `numberToHex`.
+			return returnType ? 'uint' : numberToHex(value);
 		}
 
 		if (!Number.isFinite(value)) {
@@ -399,6 +429,14 @@ export const toHex = (
  */
 export const toNumber = (value: Numbers): number | bigint => {
 	if (typeof value === 'number') {
+		if (value > 1e20) {
+			console.warn(PrecisionLossWarning);
+			// JavaScript converts numbers >= 10^21 to scientific notation when coerced to strings,
+			// leading to potential parsing errors and incorrect representations.
+			// For instance, String(10000000000000000000000) yields '1e+22'.
+			// Using BigInt prevents this
+			return BigInt(value);
+		}
 		return value;
 	}
 
@@ -442,6 +480,9 @@ export const toBigInt = (value: unknown): bigint => {
 
 	// isHex passes for dec, too
 	if (typeof value === 'string' && isHex(value)) {
+		if (value.startsWith('-')) {
+			return -BigInt(value.substring(1));
+		}
 		return BigInt(value);
 	}
 
@@ -463,11 +504,19 @@ export const toBigInt = (value: unknown): bigint => {
  * > 0.000000001
  * ```
  */
-export const fromWei = (number: Numbers, unit: EtherUnits): string => {
-	const denomination = ethUnitMap[unit];
+export const fromWei = (number: Numbers, unit: EtherUnits | number): string => {
+	let denomination;
+	if (typeof unit === 'string') {
+		denomination = ethUnitMap[unit];
 
-	if (!denomination) {
-		throw new InvalidUnitError(unit);
+		if (!denomination) {
+			throw new InvalidUnitError(unit);
+		}
+	} else {
+		if (unit < 0 || !Number.isInteger(unit)) {
+			throw new InvalidIntegerError(unit);
+		}
+		denomination = bigintPower(BigInt(10), BigInt(unit));
 	}
 
 	// value in wei would always be integer
@@ -497,14 +546,15 @@ export const fromWei = (number: Numbers, unit: EtherUnits): string => {
 	const fraction = zeroPaddedValue.slice(-numberOfZerosInDenomination).replace(/\.?0+$/, '');
 
 	if (integer === '') {
-		return `0.${fraction}`;
+		return fraction ? `0.${fraction}` : '0';
 	}
 
 	if (fraction === '') {
 		return integer;
 	}
+	const updatedValue = `${integer}.${fraction}`;
 
-	return `${integer}.${fraction}`;
+	return updatedValue.slice(0, integer.length + numberOfZerosInDenomination + 1);
 };
 
 /**
@@ -521,19 +571,47 @@ export const fromWei = (number: Numbers, unit: EtherUnits): string => {
  * ```
  */
 // todo in 1.x unit defaults to 'ether'
-export const toWei = (number: Numbers, unit: EtherUnits): string => {
+export const toWei = (number: Numbers, unit: EtherUnits | number): string => {
 	validator.validate(['number'], [number]);
 
-	const denomination = ethUnitMap[unit];
+	let denomination;
+	if (typeof unit === 'string') {
+		denomination = ethUnitMap[unit];
+		if (!denomination) {
+			throw new InvalidUnitError(unit);
+		}
+	} else {
+		if (unit < 0 || !Number.isInteger(unit)) {
+			throw new InvalidIntegerError(unit);
+		}
 
-	if (!denomination) {
-		throw new InvalidUnitError(unit);
+		denomination = bigintPower(BigInt(10), BigInt(unit));
+	}
+
+	let parsedNumber = number;
+	if (typeof parsedNumber === 'number') {
+		if (parsedNumber < 1e-15) {
+			console.warn(PrecisionLossWarning);
+		}
+		if (parsedNumber > 1e20) {
+			console.warn(PrecisionLossWarning);
+
+			parsedNumber = BigInt(parsedNumber);
+		} else {
+			// in case there is a decimal point, we need to convert it to string
+			parsedNumber = parsedNumber.toLocaleString('fullwide', {
+				useGrouping: false,
+				maximumFractionDigits: 20,
+			});
+		}
 	}
 
 	// if value is decimal e.g. 24.56 extract `integer` and `fraction` part
 	// to avoid `fraction` to be null use `concat` with empty string
 	const [integer, fraction] = String(
-		typeof number === 'string' && !isHexStrict(number) ? number : toNumber(number),
+		typeof parsedNumber === 'string' && !isHexStrict(parsedNumber)
+			? parsedNumber
+			: toNumber(parsedNumber),
 	)
 		.split('.')
 		.concat('');
@@ -546,19 +624,14 @@ export const toWei = (number: Numbers, unit: EtherUnits): string => {
 	// 2456 * 1000000 -> 2456000000
 	const updatedValue = value * denomination;
 
-	// count number of zeros in denomination
-	const numberOfZerosInDenomination = denomination.toString().length - 1;
-
-	// check which either `fraction` or `denomination` have lower number of zeros
-	const decimals = Math.min(fraction.length, numberOfZerosInDenomination);
-
+	// check if whole number was passed in
+	const decimals = fraction.length;
 	if (decimals === 0) {
 		return updatedValue.toString();
 	}
 
-	// Add zeros to make length equal to required decimal points
-	// If string is larger than decimal points required then remove last zeros
-	return updatedValue.toString().padStart(decimals, '0').slice(0, -decimals);
+	// trim the value to remove extra zeros
+	return updatedValue.toString().slice(0, -decimals);
 };
 
 /**
@@ -578,7 +651,11 @@ export const toChecksumAddress = (address: Address): string => {
 
 	const lowerCaseAddress = address.toLowerCase().replace(/^0x/i, '');
 
-	const hash = bytesToHex(keccak256(utf8ToBytes(lowerCaseAddress)));
+	// calling `Uint8Array.from` because `noble-hashes` checks with `instanceof Uint8Array` that fails in some edge cases:
+	// 	https://github.com/paulmillr/noble-hashes/issues/25#issuecomment-1750106284
+	const hash = utils.uint8ArrayToHexString(
+		keccak256(validatorUtils.ensureIfUint8Array(utf8ToBytes(lowerCaseAddress))),
+	);
 
 	if (
 		isNullish(hash) ||
@@ -599,4 +676,38 @@ export const toChecksumAddress = (address: Address): string => {
 		}
 	}
 	return checksumAddress;
+};
+
+export const toBool = (value: boolean | string | number | unknown): boolean => {
+	if (typeof value === 'boolean') {
+		return value;
+	}
+
+	if (typeof value === 'number' && (value === 0 || value === 1)) {
+		return Boolean(value);
+	}
+
+	if (typeof value === 'bigint' && (value === BigInt(0) || value === BigInt(1))) {
+		return Boolean(value);
+	}
+
+	if (
+		typeof value === 'string' &&
+		!isHexStrict(value) &&
+		(value === '1' || value === '0' || value === 'false' || value === 'true')
+	) {
+		if (value === 'true') {
+			return true;
+		}
+		if (value === 'false') {
+			return false;
+		}
+		return Boolean(Number(value));
+	}
+
+	if (typeof value === 'string' && isHexStrict(value) && (value === '0x1' || value === '0x0')) {
+		return Boolean(toNumber(value));
+	}
+
+	throw new InvalidBooleanError(value);
 };

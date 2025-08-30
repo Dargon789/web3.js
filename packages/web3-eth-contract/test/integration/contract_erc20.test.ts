@@ -27,8 +27,9 @@ import {
 	refillAccount,
 	signAndSendContractMethodEIP1559,
 	signAndSendContractMethodEIP2930,
+	closeOpenConnection,
 } from '../fixtures/system_test_utils';
-import { processAsync, toUpperCaseHex } from '../shared_fixtures/utils';
+import { toUpperCaseHex } from '../shared_fixtures/utils';
 
 const initialSupply = BigInt('5000000000');
 
@@ -49,6 +50,10 @@ describe('contract', () => {
 			};
 		});
 
+		afterAll(async () => {
+			await closeOpenConnection(contract);
+		});
+
 		it('should deploy the contract', async () => {
 			const acc = await createTempAccount();
 			const sendOptionsLocal = { from: acc.address, gas: '10000000' };
@@ -61,6 +66,7 @@ describe('contract', () => {
 			let contractDeployed: Contract<typeof ERC20TokenAbi>;
 			let pkAccount: { address: string; privateKey: string };
 			let mainAcc: { address: string; privateKey: string };
+
 			const prepareForTransfer = async (value: string) => {
 				const tempAccount = await createTempAccount();
 				await contractDeployed.methods.transfer(pkAccount.address, value).send(sendOptions);
@@ -74,6 +80,11 @@ describe('contract', () => {
 				sendOptions = { from: mainAcc.address, gas: '10000000' };
 				contractDeployed = await contract.deploy(deployOptions).send(sendOptions);
 			});
+
+			afterAll(async () => {
+				await closeOpenConnection(contractDeployed);
+			});
+
 			describe('methods', () => {
 				it('should return the name', async () => {
 					expect(await contractDeployed.methods.name().call()).toBe('Gold');
@@ -94,19 +105,100 @@ describe('contract', () => {
 				it('should transfer tokens', async () => {
 					const acc2 = await createTempAccount();
 					const value = BigInt(10);
-					await contractDeployed.methods.transfer(acc2.address, value).send(sendOptions);
+					const receipt = await contractDeployed.methods
+						.transfer(acc2.address, value)
+						.send(sendOptions);
+
+					expect(receipt.events).toBeDefined();
+					expect(receipt.events?.Transfer).toBeDefined();
+					expect(receipt.events?.Transfer.event).toBe('Transfer');
+					expect(String(receipt.events?.Transfer.returnValues.from).toLowerCase()).toBe(
+						mainAcc.address.toLowerCase(),
+					);
+					expect(String(receipt.events?.Transfer.returnValues[0]).toLowerCase()).toBe(
+						mainAcc.address.toLowerCase(),
+					);
+					expect(String(receipt.events?.Transfer.returnValues.to).toLowerCase()).toBe(
+						acc2.address.toLowerCase(),
+					);
+					expect(String(receipt.events?.Transfer.returnValues[1]).toLowerCase()).toBe(
+						acc2.address.toLowerCase(),
+					);
+					expect(receipt.events?.Transfer.returnValues.value).toBe(value);
+					expect(receipt.events?.Transfer.returnValues[2]).toBe(value);
 
 					expect(await contractDeployed.methods.balanceOf(acc2.address).call()).toBe(
 						value,
 					);
 				});
+
+				it('send tokens from the account that does not have ether', async () => {
+					const tempAccount = await createTempAccount();
+					const test = await createNewAccount({
+						unlock: true,
+						refill: false,
+					});
+
+					let catchError = false;
+					let catchErrorPromise;
+					try {
+						const promiEvent = contractDeployed.methods
+							.transfer(tempAccount.address, '0x1')
+							.send({ ...sendOptions, from: test.address });
+
+						catchErrorPromise = new Promise(resolve => {
+							// eslint-disable-next-line @typescript-eslint/no-floating-promises
+							promiEvent.on('error', err => {
+								// Returned error: insufficient funds for gas * price + value: balance 0, tx cost 25000327300000000, overshot 25000327300000000
+								resolve(err);
+							});
+						});
+						await promiEvent;
+					} catch (e) {
+						// Returned error: insufficient funds for gas * price + value: balance 0, tx cost 25000327300000000, overshot 25000327300000000
+						catchError = true;
+					}
+					expect(await catchErrorPromise).toBeDefined();
+					expect(catchError).toBe(true);
+				});
+
+				it('send tokens from the account that does not have tokens', async () => {
+					const tempAccount = await createTempAccount();
+					const test = await createNewAccount({
+						unlock: true,
+						refill: true,
+					});
+
+					let catchError = false;
+					let catchErrorPromise;
+					try {
+						const promiEvent = contractDeployed.methods
+							.transfer(tempAccount.address, '0x1')
+							.send({ ...sendOptions, from: test.address });
+
+						catchErrorPromise = new Promise(resolve => {
+							// eslint-disable-next-line @typescript-eslint/no-floating-promises
+							promiEvent.on('error', err => {
+								// Transaction has been reverted by the EVM
+								resolve(err);
+							});
+						});
+						await promiEvent;
+					} catch (e) {
+						// Transaction has been reverted by the EVM
+						catchError = true;
+					}
+					expect(await catchErrorPromise).toBeDefined();
+					expect(catchError).toBe(true);
+				});
+
 				it.each([signAndSendContractMethodEIP1559, signAndSendContractMethodEIP2930])(
 					'should transfer tokens with local wallet %p',
 					async signAndSendContractMethod => {
 						const value = BigInt(10);
 						const tempAccount = await prepareForTransfer(value.toString());
 						await signAndSendContractMethod(
-							contract.provider,
+							contractDeployed.provider,
 							contractDeployed.options.address as string,
 							contractDeployed.methods.transfer(tempAccount.address, value),
 							pkAccount.privateKey,
@@ -211,22 +303,21 @@ describe('contract', () => {
 			describeIf(isWs)('events', () => {
 				it('should emit transfer event', async () => {
 					const acc2 = await createTempAccount();
-					await expect(
-						processAsync(async resolve => {
-							const event = contractDeployed.events.Transfer();
-							event.on('data', data => {
-								resolve({
-									from: toUpperCaseHex(data.returnValues.from as string),
-									to: toUpperCaseHex(data.returnValues.to as string),
-									value: data.returnValues.value,
-								});
+					const event = contractDeployed.events.Transfer();
+					const eventPromise = new Promise((resolve, reject) => {
+						event.on('data', data => {
+							resolve({
+								from: toUpperCaseHex(data.returnValues.from as string),
+								to: toUpperCaseHex(data.returnValues.to as string),
+								value: data.returnValues.value,
 							});
+						});
+						event.on('error', reject);
+					});
 
-							await contractDeployed.methods
-								.transfer(acc2.address, '100')
-								.send(sendOptions);
-						}),
-					).resolves.toEqual({
+					await contractDeployed.methods.transfer(acc2.address, '100').send(sendOptions);
+
+					await expect(eventPromise).resolves.toEqual({
 						from: toUpperCaseHex(sendOptions.from as string),
 						to: toUpperCaseHex(acc2.address),
 						value: BigInt(100),

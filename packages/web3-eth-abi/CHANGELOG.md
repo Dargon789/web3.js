@@ -136,4 +136,74 @@ Documentation:
 
 -   Dependencies updated
 
+## [4.1.2]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.1.3]
+
+### Fixed
+
+-   Fix issue with default config with babel (and React): "TypeError: Cannot convert a BigInt value to a number #6187" (#6506)
+
+## [4.1.4]
+
+### Fixed
+
+-   Bug fix of `ERR_UNSUPPORTED_DIR_IMPORT` in ABI (#6535)
+
+## [4.2.0]
+
+### Changed
+
+-   Use `AbiError` instead of `Error` for errors at web3-eth-abi (#6641).
+
+### Fixed
+
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+## [4.2.1]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.2.2]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.2.3]
+
+### Fixed
+
+-   fix encodedata in EIP-712 (#7095)
+
+## [4.2.4]
+
+### Added
+
+-   Handle common cases for smart contract errors according to EIP 838: `0x4e487b71` which is the ‘selector’ for `Panic(uint256)` and `0x08c379a0` is the ‘selector’ of `Error(string)`. (7155)
+
+## [4.3.0]
+
+### Fixed
+
+-   `decodeLog` , `decodeParametersWith` , `decodeParameters` and `decodeParameters` now accepts first immutable param as well (#7288)
+
+## [4.4.0]
+
+### Added
+
+-   added `decodeFunctionCall` and `decodeFunctionReturn`. (#7345)
+
+## [4.4.1]
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
 ## [Unreleased]

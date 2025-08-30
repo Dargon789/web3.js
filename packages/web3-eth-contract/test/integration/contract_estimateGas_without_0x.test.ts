@@ -17,7 +17,11 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 
 import { ETH_DATA_FORMAT } from 'web3-types';
 import { Contract } from '../../src';
-import { getSystemTestProvider, createTempAccount } from '../fixtures/system_test_utils';
+import {
+	getSystemTestProvider,
+	createTempAccount,
+	closeOpenConnection,
+} from '../fixtures/system_test_utils';
 
 describe('contract', () => {
 	// Create a new contract object using the ABI and bytecode
@@ -49,6 +53,10 @@ describe('contract', () => {
 		acc = await createTempAccount();
 	});
 
+	afterAll(async () => {
+		await closeOpenConnection(contract);
+	});
+
 	it('should be able to add `data` input without `0x` prefix', async () => {
 		contract = new Contract(abi, undefined, {
 			provider: getSystemTestProvider(),
@@ -56,8 +64,6 @@ describe('contract', () => {
 
 		const myContract = contract.deploy({
 			data: '608060405234801561001057600080fd5b506040516101d93803806101d983398181016040528101906100329190610054565b806000819055505061009e565b60008151905061004e81610087565b92915050565b60006020828403121561006657600080fd5b60006100748482850161003f565b91505092915050565b6000819050919050565b6100908161007d565b811461009b57600080fd5b50565b61012c806100ad6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806323fd0e401460375780636ffd773c146051575b600080fd5b603d6069565b6040516048919060bf565b60405180910390f35b6067600480360381019060639190608c565b606f565b005b60005481565b8060008190555050565b60008135905060868160e2565b92915050565b600060208284031215609d57600080fd5b600060a9848285016079565b91505092915050565b60b98160d8565b82525050565b600060208201905060d2600083018460b2565b92915050565b6000819050919050565b60e98160d8565b811460f357600080fd5b5056fea2646970667358221220d28cf161457f7936995800eb9896635a02a559a0561bff6a09a40bfb81cd056564736f6c63430008000033',
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
 			arguments: [1],
 		});
 

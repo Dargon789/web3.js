@@ -179,13 +179,13 @@ Released with 1.0.0-beta.37 code base.
 
 -   Introduce review and release guidelines. (#3460)
 -   Add EIP-1193 compatible provider to `AbstractProvider` interface. (#3499)
--   Add Typescript definitions for contract `methods` and `call`. (#3454)
+-   Add TypeScript definitions for contract `methods` and `call`. (#3454)
 -   Update AbstractProvider and contract.methods TS definitions (#3521)
 -   Add support for ENS contenthash methods. (#3392, #2782)
 
 ### Changed
 
--   Change CI provider from Travis to Github Actions. (#3468)
+-   Change CI provider from Travis to GitHub Actions. (#3468)
 -   Update `web3-eth-abi` ABICoder dependency. (#3490)
 -   Update AbiCoder param formatting (#3522)
 -   Improve code clarity of HttpProvider keepAlive option setting. (#3463)
@@ -354,7 +354,7 @@ Released with 1.0.0-beta.37 code base.
 
 ### Added
 
--   Github action for running tests for `web3-eth2-core` and `web3-eth2-beaconchain` packages (#3892)
+-   GitHub action for running tests for `web3-eth2-core` and `web3-eth2-beaconchain` packages (#3892)
 -   Added description to documentation on how to connect using a remote node provider (#3884)
 -   Added Security risk warning to docs for `web3.utils.soliditySha3` (#3908)
 -   `.nvmrc` file using Node.js version `v.14.15.1` (#3817)
@@ -366,7 +366,7 @@ Released with 1.0.0-beta.37 code base.
 -   Renamed the `tsc` script in all packages to `compile`; updates the corresponding `lerna run` usage in the main `package.json` (#3894)
 -   moved deprecation warnings to postinstall scripts (#3917)
 -   Upgrade `@chainsafe/geth-dev-assistant` from `0.1.5` to `0.1.9` (#3950)
--   Replaced hardcoded infura link with Github Secret for some tests (#3943)
+-   Replaced hardcoded infura link with GitHub Secret for some tests (#3943)
 -   Bump `elliptic` from `6.5.3` to `6.5.4` for `web3-eth-accounts` (#3941)
 -   Bump `elliptic` from `6.5.3` to `6.5.4` for `web3-bzz` (#3940)
 -   Bump `elliptic` from `6.5.3` to `6.5.4` for `web3-core-requestmanager` (#3945)
@@ -466,13 +466,13 @@ Released with 1.0.0-beta.37 code base.
 
 -   Not considering `tx.chainId` if `tx.common.customChain.chainId` is provided for `web3.eth.accounts.signTransaction` function (#4293)
 -   Added missing PromiEvent handler types (#4194)
--   Updated README to include Webpack 5 angular support instructions (#4174)
+-   Updated README to include webpack 5 angular support instructions (#4174)
 -   Updated the documentation for the `Web3.utils`, removed context for `_` (underscore lib) (#4403)
 -   Emit subscription id with connect event when creating a subscription (#4300)
 -   Introduced new configuration "blockHeaderTimeout" for waiting of block headers for transaction receipt (#3891)
 -   Format `block.baseFeePerGas` to number (#4330)
 -   Correct `web3-eth-personal.sendTransaction` example in documentation (#4409)
--   Updated README to include Webpack 5 angular support instructions (#4174)
+-   Updated README to include webpack 5 angular support instructions (#4174)
 
 ### Fixed
 
@@ -509,7 +509,7 @@ Released with 1.0.0-beta.37 code base.
 -   Fix typos in web3-utils.rst (#4662)
 -   Added effectiveGasPrice to TransactionReceipt (#4692)
 -   Correction in documentation for `web3.eth.accounts.signTransaction` (#4576)
--   Updated README to include Webpack 5 create-react-app support instructions (#4173)
+-   Updated README to include webpack 5 create-react-app support instructions (#4173)
 -   Update the documentation for `methods.myMethod.estimateGas` (#4702)
 -   Fix typos in REVIEW.md and TESTING.md (#4691)
 -   Fix encoding for "0x" string values (#4512)
@@ -562,7 +562,7 @@ Released with 1.0.0-beta.37 code base.
 
 -   Replace deprecated String.prototype.substr() (#4855)
 -   Exporting AbiCoder as coder (#4937)
--   Github build workflow updated min build for node.js 12 and tests for 12, 14 and 16 (#5014)
+-   GitHub build workflow updated min build for node.js 12 and tests for 12, 14 and 16 (#5014)
 -   Updated libraries using BN and the BN library (#5072)
 
 ### Added
@@ -950,7 +950,7 @@ should use 4.0.1-alpha.0 for testing.
 
 #### web3-validator
 
--   Fix issue when importing `web3-validator` package within browser environments (Webpack minified filename changed from `index.min.js` to `web3-validator.min.js`) (#5710)
+-   Fix issue when importing `web3-validator` package within browser environments (webpack minified filename changed from `index.min.js` to `web3-validator.min.js`) (#5710)
 -   Fix build error '"type"' does not satisfy the constraint (#5712)
 
 #### web3-eth-abi
@@ -1993,4 +1993,880 @@ If there are any bugs, improvements, optimizations or any new feature proposal f
 
 -   Dependencies updated
 
+## [4.1.2]
+
+### Fixed
+
+#### web3
+
+-   Fix of incorrect provider warning behavior
+
+#### web3-eth-accounts
+
+-   Fixed "The `r` and `s` returned by `sign` to does not always consist of 64 characters" (#6411)
+
+#### web3-eth-contract
+
+#### web3-utils
+
+-   `soliditySha3()` with BigInt support
+
+### Added
+
+#### web3-core
+
+-   Added to `Web3Config` property `contractDataInputFill` allowing users to have the choice using property `data`, `input` or `both` for contract methods to be sent to the RPC provider when creating contracts. (#6377) (#6400)
+
+#### web3-eth
+
+-   Added to `Web3Config` property `contractDataInputFill` allowing users to have the choice using property `data`, `input` or `both` for contract methods to be sent to the RPC provider when creating contracts. (#6377) (#6400)
+-   Added `ALL_EVENTS` and `ALL_EVENTS_ABI` constants, `SendTransactionEventsBase` type, `decodeEventABI` method (#6410)
+
+#### web3-eth-contract
+
+-   Added `dataInputFill` as a ContractInitOption, allowing users to have the choice using property `data`, `input` or `both` for contract methods to be sent to the RPC provider. (#6355)
+-   Added to `Web3Config` property `contractDataInputFill` allowing users to have the choice using property `data`, `input` or `both` for contract methods to be sent to the RPC provider when creating contracts. (#6377)
+
+#### web3-types
+
+-   add `asEIP1193Provider` to `Web3BaseProvider` so every inherited class can have the returned value of `request` method, fully compatible with EIP-1193. (#6407)
+
+### Changed
+
+#### web3-core
+
+-   Dependencies updated
+
+#### web3-errors
+
+-   Dependencies updated
+
+#### web3-eth-abi
+
+-   Dependencies updated
+
+#### web3-eth-ens
+
+-   Dependencies updated
+
+#### web3-eth-iban
+
+-   Dependencies updated
+
+#### web3-eth-personal
+
+-   Dependencies updated
+
+#### web3-net
+
+-   Dependencies updated
+
+#### web3-providers-http
+
+-   Dependencies updated
+
+#### web3-providers-ipc
+
+-   Dependencies updated
+
+#### web3-providers-ws
+
+-   Dependencies updated
+
+#### web3-rpc-methods
+
+-   Dependencies updated
+
+#### web3-validator
+
+-   Dependencies updated
+
+## [4.2.0]
+
+### Added
+
+#### web3
+
+-   Various web3 sub packages has new functions details are in root changelog
+
+#### web3-eth
+
+-   Added `ALL_EVENTS` and `ALL_EVENTS_ABI` constants, `SendTransactionEventsBase` type, `decodeEventABI` method (#6410)
+
+#### web3-eth-accounts
+
+-   Added public function `privateKeyToPublicKey`
+-   Added exporting `BaseTransaction` from the package (#6493)
+-   Added exporting `txUtils` from the package (#6493)
+
+#### web3-types
+
+-   Interface `EventLog` was added. (#6410)
+
+#### web3-utils
+
+-   As a replacment of the node EventEmitter, a custom `EventEmitter` has been implemented and exported. (#6398)
+
+### Fixed
+
+#### web3-core
+
+-   Fix the issue: "Uncaught TypeError: Class extends value undefined is not a constructor or null #6371". (#6398)
+
+#### web3-errors
+
+-   Added new SchemaFormatError (#6434)
+
+#### web3-eth
+
+-   Ensure provider.supportsSubscriptions exists before watching by subscription (#6440)
+-   Fixed param sent to `checkRevertBeforeSending` in `sendSignedTransaction`
+-   Fixed `defaultTransactionBuilder` for value issue (#6509)
+
+#### web3-eth-abi
+
+-   Fix issue with default config with babel (and React): "TypeError: Cannot convert a BigInt value to a number #6187" (#6506)
+
+#### web3-eth-accounts
+
+-   Fixed `recover` function, `v` will be normalized to value 0,1 (#6344)
+
+#### web3-providers-http
+
+-   Fix issue lquixada/cross-fetch#78, enabling to run web3.js in service worker (#6463)
+
+#### web3-providers-ipc
+
+-   Fixed bug in chunks processing logic (#6496)
+
+#### web3-providers-ws
+
+-   Fixed bug in chunks processing logic (#6496)
+
+#### web3-utils
+
+-   Fix issue with default config with babel (and React): "TypeError: Cannot convert a BigInt value to a number #6187" (#6506)
+-   Fixed bug in chunks processing logic (#6496)
+
+#### web3-validator
+
+-   Multi-dimensional arrays are now handled properly when parsing ABIs (#6435)
+-   Fix issue with default config with babel (and React): "TypeError: Cannot convert a BigInt value to a number #6187" (#6506)
+-   Validator will now properly handle all valid numeric type sizes: intN / uintN where 8 <= N <= 256 and N % 8 == 0 (#6434)
+-   Will now throw SchemaFormatError when unsupported format is passed to `convertToZod` method (#6434)
+
+### Changed
+
+#### web3
+
+-   Dependencies updated
+
+#### web3-core
+
+-   defaultTransactionType is now type 0x2 instead of 0x0 (#6282)
+-   Allows formatter to parse large base fee (#6456)
+-   The package now uses `EventEmitter` from `web3-utils` that works in node envrioment as well as in the browser. (#6398)
+
+#### web3-eth
+
+-   Transactions will now default to type 2 transactions instead of type 0, similar to 1.x version. (#6282)
+
+#### web3-eth-contract
+
+-   The `events` property was added to the `receipt` object (#6410)
+
+#### web3-eth-ens
+
+-   Dependencies updated
+
+#### web3-eth-iban
+
+-   Dependencies updated
+
+#### web3-eth-personal
+
+-   Dependencies updated
+
+#### web3-net
+
+-   Dependencies updated
+
+#### web3-providers-http
+
+-   Bump cross-fetch to version 4 (#6463).
+
+#### web3-rpc-methods
+
+-   Dependencies updated
+
+## [4.2.1]
+
+### Fixed
+
+#### web3-eth-abi
+
+-   Bug fix of `ERR_UNSUPPORTED_DIR_IMPORT` in ABI (#6535)
+
+### Changed
+
+#### web3-eth-contract
+
+-   Dependencies updated
+
+#### web3-eth
+
+-   Dependencies updated
+
+#### web3-eth-ens
+
+-   Dependencies updated
+
+#### web3-eth-personal
+
+-   Dependencies updated
+
+## [4.2.2]
+
+### Added
+
+#### web3-core
+
+-   Added `isMetaMaskProvider` function to check if provider is metamask (#6534)
+
+#### web3-types
+
+-   Interface `MetaMaskProvider` added and is part of `SupportedProviders` (#6534)
+-   `gasPrice` was added to `Transaction1559UnsignedAPI` type. (#6539)
+
+### Changed
+
+#### web3
+
+-   Dependencies updated
+
+### Fixed
+
+#### web3-errors
+
+-   Fixed grammar and spelling in `transactionTimeoutHint` (#6559)
+
+#### web3-eth-contract
+
+-   Will populate `data` for transactions in contract for metamask provider instead of `input` (#6534)
+
+## [4.3.0]
+
+### Changed
+
+#### web3-core
+
+-   Web3config `contractDataInputFill` has been defaulted to `data`, instead of `input`. (#6622)
+
+#### web3-eth-contracts
+
+-   By default, contracts will fill `data` instead of `input` within method calls (#6622)
+
+### Added
+
+#### web3-utils
+
+-   `SocketProvider` now contains public function `getPendingRequestQueueSize`, `getSentRequestsQueueSize` and `clearQueues` (#6479)
+-   Added `safeDisconnect` as a `SocketProvider` method to disconnect only when request queue size and send request queue size is 0 (#6479)
+-   Add `isContractInitOptions` method (#6555)
+
+#### web3
+
+-   Added methods (privateKeyToAddress, parseAndValidatePrivateKey, and privateKeyToPublicKey) to web3.eth.accounts (#6620)
+
+### Fixed
+
+#### web3-rpc-methods
+
+-   Fix web3-types import #6590 (#6589)
+
+#### web3-utils
+
+-   Fix unnecessary array copy when pack encoding (#6553)
+
+## [4.4.0]
+
+### Added
+
+#### web3-eth
+
+-   Catch `TransactionPollingTimeoutError` was added to send transaction events (#6623)
+
+### Changed
+
+#### web3-eth-abi
+
+-   Use `AbiError` instead of `Error` for errors at web3-eth-abi (#6641).
+
+#### web3-eth-contract
+
+-   Allow the `deploy` function to accept parameters, even when no ABI was provided to the `Contract`(#6635)
+
+#### web3
+
+-   Dependencies updated
+
+### Fixed
+
+#### web3-eth-abi
+
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+#### web3-eth-accounts
+
+-   Send Transaction config used to be ignored if the passed `common` did not have a `copy()` and the `chainId` was not provided (#6663)
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+#### web3-eth-contract
+
+-   Fix and error that happen when trying to get past events by calling `contract.getPastEvents` or `contract.events.allEvents()`, if there is no matching events. (#6647)
+-   Fixed: The Contract is not using the context wallet passed if context was passed at constructor. (#6661)
+
+#### web3-utils
+
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+#### web3-validator
+
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+## [4.5.0]
+
+### Added
+
+#### web3-utils
+
+-   Adds missing exported type `AbiItem` from 1.x to v4 for compatabiltiy (#6678)
+
+#### web3-types
+
+-   Adds missing exported type `AbiItem` from 1.x to v4 for compatabiltiy (#6678)
+
+### Changed
+
+#### web3
+
+-   Dependencies updated
+
+## [4.6.0]
+
+### Added
+
+#### web3
+
+-   Added EIP-6963 utility function `requestEIP6963Providers` for multi provider discovery
+
+#### web3-eth
+
+-   Added `eth.getMaxPriorityFeePerGas` method (#6748)
+
+#### web3-eth-ens
+
+-   Added function `setAddress` in ENS and Resolver classes (#5956)
+
+#### web3-rpc-methods
+
+-   Added `getMaxPriorityFeePerGas` method (#6748)
+
+#### web3-types
+
+-   Type `FeeData` to be filled by `await web3.eth.calculateFeeData()` to be used with EIP-1559 transactions (#6795)
+
+### Fixed
+
+#### web3-utils
+
+-   replaced our eventEmitter to EventEmitter3 to support react native builds (#6253)
+
+## [4.7.0]
+
+### added
+
+#### web3-eth-contract
+
+-   Types `ContractDeploySend`, `ContractMethodSend`, `Web3PromiEvent` was exported (#6883)
+
+#### web3-eth-ens
+
+-   Added function getText and getName in ENS and resolver classes (#6914)
+
+### fixed
+
+#### web3-validator
+
+-   Multi-dimensional arrays(with a fix length) are now handled properly when parsing ABIs (#6798)
+
+#### web3-utils
+
+-   fixed erroneous parsing of big numbers in the `toNumber(...)` function (#6880)
+
+## [4.8.0]
+
+### Changed
+
+#### web3-eth-abi
+
+-   Dependencies updated
+
+#### web3-eth-accounts
+
+-   Dependencies updated
+
+### Fixed
+
+#### web3-eth-contract
+
+-   Fix an issue with smart contract function overloading (#6922)
+
+#### web3-utils
+
+-   fixed toHex incorrectly hexing Uint8Arrays and Buffer (#6957)
+-   fixed isUint8Array not returning true for Buffer (#6957)
+
+### Added
+
+#### web3-eth-contract
+
+-   Added a console warning in case of an ambiguous call to a solidity method with parameter overloading (#6942)
+-   Added contract.deploy(...).decodeData(...) and contract.decodeMethodData(...) that decode data based on the ABI (#6950)
+
+#### web3-eth
+
+-   method `getBlock` now includes properties of eip 4844, 4895, 4788 when returning block (#6933)
+-   update type `withdrawalsSchema`, `blockSchema` and `blockHeaderSchema` schemas to include properties of eip 4844, 4895, 4788 (#6933)
+
+#### web3-types
+
+-   Added `signature` to type `AbiFunctionFragment` (#6922)
+-   update type `Withdrawals`, `block` and `BlockHeaderOutput` to include properties of eip 4844, 4895, 4788 (#6933)
+
+## [4.9.0]
+
+### Added
+
+#### web3
+
+-   Updated type `Web3EthInterface.accounts` to includes `privateKeyToAccount`,`privateKeyToAddress`,and `privateKeyToPublicKey` (#6762)
+
+#### web3-core
+
+-   `defaultReturnFormat` was added to the configuration options. (#6947)
+
+#### web3-errors
+
+-   Added `InvalidIntegerError` error for fromWei and toWei (#7052)
+
+#### web3-eth
+
+-   `defaultReturnFormat` was added to all methods that have `ReturnType` param. (#6947)
+-   `getTransactionFromOrToAttr`, `waitForTransactionReceipt`, `trySendTransaction`, `SendTxHelper` was exported (#7000)
+
+#### web3-eth-contract
+
+-   `defaultReturnFormat` was added to all methods that have `ReturnType` param. (#6947)
+
+#### web3-eth-ens
+
+-   `defaultReturnFormat` was added to all methods that have `ReturnType` param. (#6947)
+
+#### web3-net
+
+-   `defaultReturnFormat` was added to all methods that have `ReturnType` param. (#6947)
+
+#### web3-types
+
+-   Added `signature` to type `AbiFunctionFragment` (#6922)
+-   update type `Withdrawals`, `block` and `BlockHeaderOutput` to include properties of eip 4844, 4895, 4788 (#6933)
+
+#### web3-utils
+
+-   `toWei` add warning when using large numbers or large decimals that may cause precision loss (#6908)
+-   `toWei` and `fromWei` now supports integers as a unit. (#7053)
+
+### Fixed
+
+#### web3-eth
+
+-   Fixed issue with simple transactions, Within `checkRevertBeforeSending` if there is no data set in transaction, set gas to be `21000` (#7043)
+
+#### web3-utils
+
+-   `toWei` support numbers in scientific notation (#6908)
+-   `toWei` and `fromWei` trims according to ether unit successfuly (#7044)
+
+#### web3-validator
+
+-   The JSON schema conversion process now correctly assigns an id when the `abi.name` is not available, for example, in the case of public mappings. (#6981)
+-   `browser` entry point that was pointing to a non-existing bundle file was removed from `package.json` (#7015)
+
+#### web3-core
+
+-   Set a try catch block if processesingError fails (#7022)
+
+### Changed
+
+#### web3-core
+
+-   Interface `RequestManagerMiddleware` was changed (#7003)
+
+#### web3-eth
+
+-   Added parameter `customTransactionReceiptSchema` into methods `emitConfirmation`, `waitForTransactionReceipt`, `watchTransactionByPolling`, `watchTransactionBySubscription`, `watchTransactionForConfirmations` (#7000)
+-   Changed functionality: For networks that returns `baseFeePerGas===0x0` fill `maxPriorityFeePerGas` and `maxFeePerGas` by `getGasPrice` method (#7050)
+
+#### web3-eth-abi
+
+-   Dependencies updated
+
+#### web3-rpc-methods
+
+-   Change `estimateGas` method to add possibility pass Transaction type (#7000)
+
+## [4.10.0]
+
+### Added
+
+#### web3
+
+-   Now when existing packages are added in web3, will be avalible for plugins via context. (#7088)
+
+#### web3-core
+
+-   Now when existing packages are added in web3, will be avalible for plugins via context. (#7088)
+
+#### web3-eth
+
+-   `sendTransaction` in `rpc_method_wrappers` accepts optional param of `TransactionMiddleware` (#7088)
+-   WebEth has `setTransactionMiddleware` and `getTransactionMiddleware` for automatically passing to `sentTransaction` (#7088)
+
+#### web3-eth-ens
+
+-   `getText` now supports first param Address
+-   `getName` has optional second param checkInterfaceSupport
+
+### web3-types
+
+-   Added `result` as optional `never` and `error` as optional `never in type `JsonRpcNotification` (#7091)
+-   Added `JsonRpcNotfication` as a union type in `JsonRpcResponse` (#7091)
+
+### web3-rpc-providers
+
+-   RC release
+
+### Fixed
+
+#### web3-eth-ens
+
+-   `getName` reverse resolution
+
+### Fixed
+
+#### web3-eth
+
+-   Fixed geth issue when running a new instance, transactions will index when there are no blocks created (#7098)
+
+### Added
+
+#### web3
+
+-   `web3.eth.Contract` will get transaction middleware and use it, if `web3.eth` has transaction middleware. (#7138)
+
+#### web3-eth-contract
+
+-   `populateTransaction` was added to contract methods (#7124)
+-   Contract has `setTransactionMiddleware` and `getTransactionMiddleware` for automatically passing to `sentTransaction` for `deploy` and `send` functions (#7138)
+
+## [4.11.0]
+
+### Fixed
+
+#### web3-eth-abi
+
+-   fix encodedata in EIP-712 (#7095)
+
+#### web3-utils
+
+-   `_sendPendingRequests` will catch unhandled errors from `_sendToSocket` (#6968)
+
+#### web3-eth
+
+-   Fixed geth issue when running a new instance, transactions will index when there are no blocks created (#7098)
+
+### Changed
+
+#### web3-eth-accounts
+
+-   baseTransaction method updated (#7095)
+
+#### web3-providers-ws
+
+-   Update dependancies (#7109)
+
+#### web3-plugin-example
+
+-   Dependencies updated
+
+#### web3-rpc-providers
+
+-   Change request return type `Promise<ResultType>` to `Promise<JsonRpcResponseWithResult<ResultType>>` (#7102)
+
+### Added
+
+#### web3-eth-contract
+
+-   `populateTransaction` was added to contract methods (#7124)
+-   Contract has `setTransactionMiddleware` and `getTransactionMiddleware` for automatically passing to `sentTransaction` for `deploy` and `send` functions (#7138)
+
+#### web3-rpc-providers
+
+-   When error is returned with code 429, throw rate limit error (#7102)
+
+#### web3
+
+-   `web3.eth.Contract` will get transaction middleware and use it, if `web3.eth` has transaction middleware. (#7138)
+
+## [4.11.1]
+
+### Fixed
+
+#### web3-errors
+
+-   Fixed the undefined data in `Eip838ExecutionError` constructor (#6905)
+
+#### web3-eth
+
+-   Adds transaction property to be an empty list rather than undefined when no transactions are included in the block (#7151)
+-   Change method `getTransactionReceipt` to not be casted as `TransactionReceipt` to give proper return type (#7159)
+
+#### web3
+
+-   Remove redundant constructor of contractBuilder (#7150)
+
+## [4.12.0]
+
+### Fixed
+
+#### web3-core
+
+-   `setConfig()` fix for `setMaxListenerWarningThreshold` fix (#5079)
+
+#### web3-eth-accounts
+
+-   Fix `TransactionFactory.registerTransactionType` not working, if there is a version mistatch between `web3-eth` and `web3-eth-accounts` by saving `extraTxTypes` at `globals`. (#7197)
+
+### Added
+
+#### web3-eth-accounts
+
+-   Added public function `signMessageWithPrivateKey` (#7174)
+
+#### web3-eth-contract
+
+-   Added `populateTransaction` to the `contract.deploy(...)` properties. (#7197)
+
+#### web3-providers-http
+
+-   Added `statusCode` of response in ResponseError, `statusCode` is optional property in ResponseError.
+
+#### web3-rpc-providers
+
+-   Updated rate limit error of QuickNode provider for HTTP transport
+-   Added optional `HttpProviderOptions | SocketOptions` in `Web3ExternalProvider` and `QuickNodeProvider` for provider configs
+
+#### web3-errors
+
+-   Added optional `statusCode` property of response in ResponseError.
+
+### Changed
+
+#### web3-eth-contract
+
+-   The returnred properties of `contract.deploy(...)` are structured with a newly created class named `DeployerMethodClass`. (#7197)
+-   Add a missed accepted type for the `abi` parameter, at `dataInputEncodeMethodHelper` and `getSendTxParams`. (#7197)
+
+## [4.12.1]
+
+### Fixed
+
+#### web3-eth-accounts
+
+-   Revert `TransactionFactory.registerTransactionType` if there is a version mistatch between `web3-eth` and `web3-eth-accounts` and fix nextjs problem. (#7216)
+
+## [4.13.0]
+
+### Added
+
+#### web3-core
+
+-   Adds a new property (`customTransactionSchema`) to `Web3ConfigOptions` (#7227)
+
+#### web3-eth
+
+-   Adds the same `{transactionSchema?: ValidationSchemaInput}` that exists in `formatTransaction` to `validateTransactionForSigning`
+
+#### web3-types
+
+-   Add COMMITTED to BlockTags (#7124)
+
+### Changed
+
+#### web3-eth
+
+-   Forwards the new `web3Context.config.customTransactionSchema` to `formatTransaction`
+
+#### web3-eth-personal
+
+-   Forwards the new `web3Context.config.customTransactionSchema` to `formatTransaction`
+
+#### web3
+
+-   `Web3.providers` namespace exports `type EIP6963ProviderResponse = Map<string, EIP6963ProviderDetail>`. Return type for the static `Web3.requestEIP6963Providers` function is now `Promise<EIP6963ProviderResponse>`. (#7239)
+-   The callback function provided to the static `Web3.onNewProviderDiscovered` function expects a parameter of type `EIP6963ProvidersMapUpdateEvent` as opposed to `EIP6963AnnounceProviderEvent`. (#7242)
+
+## [4.14.0]
+
+### Added
+
+#### web3-core
+
+-   Added new property `ignoreGasPricing` to `Web3ConfigOptions`. If `ignoreGasPricing` is true, gasPrice will not be estimated (#7320)
+
+#### web3-eth
+
+-   `syncing` subscription now supports Besu and Nethermind payload format
+-   `populateGasPrice` function now checks `Web3Context.config.ignoreGasPricing`. If `ignoreGasPricing` is true, gasPrice will not be estimated (#7320)
+
+### Changed
+
+#### web3
+
+-   Exported EIP-6963 types are no longer under the `providers` namespace. (#7270)
+
+#### web3-eth
+
+-   Allow `getEthereumjsTxDataFrom` to return additional fields that may be passed if using a `customTransactionSchema`.
+
+#### web3-types
+
+-   update the type for `baseFeePerGas` at `web3.eth.getFeeHistory` to be a number. (#7291)
+
+#### web3-eth
+
+-   Allow specifying percentage based factor in Web3Eth.calculateFeeData Param baseFeePerGasFactor #7332
+
+### Fixed
+
+#### web3-eth-abi
+
+-   `decodeLog` , `decodeParametersWith` , `decodeParameters` and `decodeParameters` now accepts first immutable param as well (#7288)
+
+#### web3-utils
+
+-   fix `padRight` validation failure on large `uint` (#7265)
+
+## [4.15.0]
+
+### Added
+
+#### web3-eth
+
+-   `createNewPendingTransactionFilter` , `createNewFilter` , `createNewBlockFilter` , `uninstallFilter` , `getFilterChanges` and `getFilterLogs` are exported from `Web3Eth` and `filtering_rpc_method_wrappers` (#7353)
+
+#### web3-eth-abi
+
+-   added `decodeFunctionCall` and `decodeFunctionReturn`. (#7345)
+
+#### web3-eth-accounts
+
+-   `hashMessage` now has a new optional param `skipPrefix` with a default value of `false`. A new function `signRaw` was added to sign a message without prefix. (#7346)
+
+#### web3-rpc-providers
+
+-   PublicNodeProvider was added (#7322)
+
+#### web3-types
+
+-   `FilterParams` type added (#7353)
+
+### Fixed
+
+#### web3-eth-contracts
+
+-   Fix Contract methods input param type any[] (#7340)
+
+## [4.16.0]
+
+### Fixed
+
+#### web3
+
+-   Export Web3Account, Wallet and signature related types. (#7374)
+
+#### web3-utils
+
+-   Make `fromWei` return "0" when input is `0` (#7387)
+
+### Removed
+
+#### web3-eth-accounts
+
+-   Move signature related types to web3-types. Re-export them for backwards compatibility. (#7374)
+
+### Added
+
+#### web3-types
+
+-   Add signature related types. (#7374)
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth-accounts
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-core
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-account-abstraction
+
+-   RC release
+
+#### web3-errors
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth-contract
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-rpc-providers
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-utils
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth-abi
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
 ## [Unreleased]
+
+### Added
+
+#### web3-validator
+
+-   Add web3-validator dist path for react-native builds (#7416)

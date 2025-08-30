@@ -157,4 +157,74 @@ Documentation:
 
 -   Dependencies updated
 
+## [1.2.0]
+
+### Added
+
+-   add `asEIP1193Provider` to `Web3BaseProvider` so every inherited class can have the returned value of `request` method, fully compatible with EIP-1193. (#6407)
+
+## [1.3.0]
+
+### Added
+
+-   Interface `EventLog` was added. (#6410)
+
+## [1.3.1]
+
+### Added
+
+-   Interface `MetaMaskProvider` added and is part of `SupportedProviders` (#6534)
+-   `gasPrice` was added to `Transaction1559UnsignedAPI` type. (#6539)
+
+## [1.4.0]
+
+### Added
+
+-   Adds missing exported type `AbiItem` from 1.x to v4 for compatabiltiy (#6678)
+
+## [1.5.0]
+
+### Added
+
+-   Type `FeeData` to be filled by `await web3.eth.calculateFeeData()` to be used with EIP-1559 transactions (#6795)
+
+## [1.6.0]
+
+### Added
+
+-   Added `signature` to type `AbiFunctionFragment` (#6922)
+-   update type `Withdrawals`, `block` and `BlockHeaderOutput` to include properties of eip 4844, 4895, 4788 (#6933)
+
+## [1.7.0]
+
+### Added
+
+-   Added `result` as optional `never` and `error` as optional `never in type `JsonRpcNotification` (#7091)
+-   Added `JsonRpcNotfication` as a union type in `JsonRpcResponse` (#7091)
+
+## [1.8.0]
+
+### Added
+
+-   Add COMMITTED to BlockTags (#7124)
+
+## [1.8.1]
+
+### Fixed
+
+-   update the type for `baseFeePerGas` at `web3.eth.getFeeHistory` to be a number. (#7291)
+
+## [1.9.0]
+
+### Added
+
+-   `FilterParams` type added (#7353)
+
+## [1.10.0]
+
+#### Added
+
+-   Add signature related types. (#7374)
+-   Updated Typescript version 4 -> 5 (#7272)
+
 ## [Unreleased]

@@ -66,6 +66,7 @@ describe('sendTransaction', () => {
 			);
 
 			if (
+				// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 				sendTransactionOptions?.ignoreGasPricing ||
 				!isNullish(inputTransaction.gasPrice) ||
 				(!isNullish(inputTransaction.maxPriorityFeePerGas) &&
@@ -299,6 +300,7 @@ describe('sendTransaction', () => {
 				formattedTransactionReceipt,
 				expectedTransactionHash,
 				DEFAULT_RETURN_FORMAT,
+				undefined,
 			);
 		},
 	);

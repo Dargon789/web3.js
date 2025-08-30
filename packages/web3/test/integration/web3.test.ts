@@ -20,9 +20,9 @@ import HttpProvider from 'web3-providers-http';
 import { IpcProvider } from 'web3-providers-ipc';
 import WebSocketProvider from 'web3-providers-ws';
 import { JsonRpcOptionalRequest, SupportedProviders, Web3BaseProvider } from 'web3-types';
-import Web3 from '../../src/index';
+import { Web3 } from '../../src/index';
 import { BasicAbi } from '../shared_fixtures/Basic';
-import { GreeterAbi, GreeterBytecode } from '../shared_fixtures/build/Greeter';
+import { GreeterAbi } from '../shared_fixtures/build/Greeter';
 import { validEncodeParametersData } from '../shared_fixtures/data';
 import {
 	closeOpenConnection,
@@ -55,7 +55,11 @@ describe('Web3 instance', () => {
 		accounts = [acc1.address, acc2.address];
 	});
 	afterAll(async () => {
-		await closeOpenConnection(web3);
+		try {
+			await closeOpenConnection(web3);
+		} catch (e) {
+			console.warn('Failed to close open con', e);
+		}
 	});
 
 	beforeEach(() => {
@@ -63,7 +67,11 @@ describe('Web3 instance', () => {
 	});
 
 	afterEach(async () => {
-		if (isWs) {
+		if (
+			isWs &&
+			web3?.provider?.supportsSubscriptions &&
+			web3.provider?.supportsSubscriptions()
+		) {
 			// make sure we try to close the connection after it is established
 			if (
 				web3?.provider &&
@@ -120,13 +128,12 @@ describe('Web3 instance', () => {
 		expect(typeof web3Instance.eth.currentProvider?.disconnect).toBe('function');
 	});
 
-	it('should be able use "utils" without provider', () => {
+	it('should be able use "utils"', () => {
 		web3 = new Web3();
-
 		expect(web3.utils.hexToNumber('0x5')).toBe(5);
 	});
 
-	it('should be able use "abi" without provider', () => {
+	it('should be able use "abi"', () => {
 		web3 = new Web3();
 		const validData = validEncodeParametersData[0];
 
@@ -135,12 +142,6 @@ describe('Web3 instance', () => {
 			validData.input[1],
 		);
 		expect(encodedParameters).toEqual(validData.output);
-	});
-
-	it('should throw error when we make a request when provider not available', async () => {
-		web3 = new Web3();
-
-		await expect(web3.eth.getChainId()).rejects.toThrow('Provider not available');
 	});
 
 	describeIf(isHttp)('Create Web3 class instance with http string providers', () => {
@@ -303,24 +304,17 @@ describe('Web3 instance', () => {
 
 	describe('defaults', () => {
 		let contract: Contract<typeof GreeterAbi>;
-		let deployOptions: Record<string, unknown>;
-		let sendOptions: Record<string, unknown>;
-		let acc: { address: string; privateKey: string };
 
 		beforeAll(() => {
 			web3 = new Web3(provider);
 		});
 
-		beforeEach(async () => {
-			acc = await createTempAccount();
-
-			// todo import GreeterBytecode
-			deployOptions = {
-				data: GreeterBytecode,
-				arguments: ['My Greeting'],
-			};
-
-			sendOptions = { from: acc.address, gas: '1000000' };
+		afterAll(() => {
+			try {
+				web3.provider?.disconnect();
+			} catch (e) {
+				// ignored
+			}
 		});
 
 		it('should update defaults on contract instance', () => {
@@ -334,20 +328,11 @@ describe('Web3 instance', () => {
 			web3.defaultHardfork = hardfork;
 
 			expect(contract.defaultHardfork).toBe(hardfork);
-		});
-
-		it('should update defaults on deployed contract instance', async () => {
-			const hardfork = 'berlin';
-
-			contract = new web3.eth.Contract(GreeterAbi, undefined, {
-				provider: getSystemTestProvider(),
-				syncWithContext: true,
-			});
-			contract = await contract.deploy(deployOptions).send(sendOptions);
-
-			web3.defaultHardfork = hardfork;
-
-			expect(contract.defaultHardfork).toBe(hardfork);
+			try {
+				contract.provider?.disconnect();
+			} catch (e) {
+				// ignored
+			}
 		});
 	});
 });

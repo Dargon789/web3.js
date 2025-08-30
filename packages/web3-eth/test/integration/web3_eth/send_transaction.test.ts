@@ -37,6 +37,9 @@ import {
 	createTempAccount,
 	getSystemTestBackend,
 	getSystemTestProvider,
+	isGeth,
+	itIf,
+	BACKEND,
 } from '../../fixtures/system_test_utils';
 import { SimpleRevertAbi, SimpleRevertDeploymentData } from '../../fixtures/simple_revert';
 
@@ -61,6 +64,7 @@ describe('Web3Eth.sendTransaction', () => {
 		};
 		const response = await web3Eth.sendTransaction(transaction);
 		expect(response.status).toBe(BigInt(1));
+		expect(response.events).toBeUndefined();
 
 		const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
 		expect(minedTransactionData).toMatchObject(transaction);
@@ -84,6 +88,7 @@ describe('Web3Eth.sendTransaction', () => {
 		};
 		const response = await web3EthWithWallet.sendTransaction(transaction);
 		expect(response.status).toBe(BigInt(1));
+		expect(response.events).toBeUndefined();
 
 		const minedTransactionData = await web3EthWithWallet.getTransaction(
 			response.transactionHash,
@@ -94,6 +99,8 @@ describe('Web3Eth.sendTransaction', () => {
 			to: '0x0000000000000000000000000000000000000000',
 			value: BigInt(1),
 		});
+
+		await closeOpenConnection(web3EthWithWallet);
 	});
 
 	it('should make a simple value transfer - with local wallet indexed receiver', async () => {
@@ -114,6 +121,7 @@ describe('Web3Eth.sendTransaction', () => {
 		};
 		const response = await web3EthWithWallet.sendTransaction(transaction);
 		expect(response.status).toBe(BigInt(1));
+		expect(response.events).toBeUndefined();
 
 		const minedTransactionData = await web3EthWithWallet.getTransaction(
 			response.transactionHash,
@@ -124,6 +132,8 @@ describe('Web3Eth.sendTransaction', () => {
 			to: wallet.get(0)?.address.toLowerCase(),
 			value: BigInt(1),
 		});
+
+		await closeOpenConnection(web3EthWithWallet);
 	});
 
 	it('should make a simple value transfer - with local wallet indexed sender and receiver', async () => {
@@ -148,6 +158,7 @@ describe('Web3Eth.sendTransaction', () => {
 		};
 		const response = await web3EthWithWallet.sendTransaction(transaction);
 		expect(response.status).toBe(BigInt(1));
+		expect(response.events).toBeUndefined();
 
 		const minedTransactionData = await web3EthWithWallet.getTransaction(
 			response.transactionHash,
@@ -158,6 +169,8 @@ describe('Web3Eth.sendTransaction', () => {
 			to: wallet.get(1)?.address.toLowerCase(),
 			value: BigInt(1),
 		});
+
+		await closeOpenConnection(web3EthWithWallet);
 	});
 	it('should make a transaction with no value transfer', async () => {
 		const transaction: Transaction = {
@@ -167,6 +180,7 @@ describe('Web3Eth.sendTransaction', () => {
 		};
 		const response = await web3Eth.sendTransaction(transaction);
 		expect(response.status).toBe(BigInt(1));
+		expect(response.events).toBeUndefined();
 
 		const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
 		expect(minedTransactionData).toMatchObject(transaction);
@@ -180,11 +194,39 @@ describe('Web3Eth.sendTransaction', () => {
 		};
 		const response = await web3Eth.sendTransaction(transaction);
 		expect(response.status).toBe(BigInt(1));
+		expect(response.events).toBeUndefined();
 
 		const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
 		expect(minedTransactionData).toMatchObject(transaction);
 	});
+	it('should send a transaction while ignoring gas price successfully', async () => {
+		const transaction: TransactionWithToLocalWalletIndex = {
+			from: tempAcc.address,
+			to: '0x0000000000000000000000000000000000000000',
+			value: BigInt(1),
+			data: '0x64edfbf0e2c706ba4a09595315c45355a341a576cc17f3a19f43ac1c02f814ee',
+		};
 
+		const localWeb3Eth = new Web3Eth(getSystemTestProvider());
+		localWeb3Eth.config.ignoreGasPricing = true;
+		const response = await localWeb3Eth.sendTransaction(transaction);
+		expect(response.status).toBe(BigInt(1));
+		await closeOpenConnection(localWeb3Eth);
+	});
+	it('should send a transaction with automated gas price successfully', async () => {
+		const transaction: TransactionWithToLocalWalletIndex = {
+			from: tempAcc.address,
+			to: '0x0000000000000000000000000000000000000000',
+			value: BigInt(1),
+			data: '0x64edfbf0e2c706ba4a09595315c45355a341a576cc17f3a19f43ac1c02f814ee',
+		};
+
+		const localWeb3Eth = new Web3Eth(getSystemTestProvider());
+		localWeb3Eth.config.ignoreGasPricing = false;
+		const response = await localWeb3Eth.sendTransaction(transaction);
+		expect(response.status).toBe(BigInt(1));
+		await closeOpenConnection(localWeb3Eth);
+	});
 	describe('Deploy and interact with contract', () => {
 		let greeterContractAddress: string;
 
@@ -199,6 +241,7 @@ describe('Web3Eth.sendTransaction', () => {
 			};
 			const response = await web3Eth.sendTransaction(transaction);
 			expect(response.status).toBe(BigInt(1));
+			expect(response.events).toBeUndefined();
 			expect(response.contractAddress).toBeDefined();
 
 			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
@@ -221,6 +264,7 @@ describe('Web3Eth.sendTransaction', () => {
 				input: contractFunctionCall,
 			};
 			const response = await web3Eth.sendTransaction(transaction);
+			expect(response.events).toBeUndefined();
 			expect(response.status).toBe(BigInt(1));
 
 			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
@@ -241,6 +285,7 @@ describe('Web3Eth.sendTransaction', () => {
 				type: BigInt(0),
 			};
 			const response = await web3Eth.sendTransaction(transaction);
+			expect(response.events).toBeUndefined();
 			expect(response.type).toBe(BigInt(0));
 			expect(response.status).toBe(BigInt(1));
 
@@ -260,6 +305,7 @@ describe('Web3Eth.sendTransaction', () => {
 				accessList: [],
 			};
 			const response = await web3Eth.sendTransaction(transaction);
+			expect(response.events).toBeUndefined();
 			expect(response.type).toBe(BigInt(1));
 			expect(response.status).toBe(BigInt(1));
 
@@ -275,6 +321,47 @@ describe('Web3Eth.sendTransaction', () => {
 				type: BigInt(2),
 			};
 			const response = await web3Eth.sendTransaction(transaction);
+			expect(response.events).toBeUndefined();
+			expect(response.type).toBe(BigInt(2));
+			expect(response.status).toBe(BigInt(1));
+
+			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
+			expect(minedTransactionData).toMatchObject(transaction);
+		});
+
+		it('should send a successful type 0x2 transaction (gas = estimateGas)', async () => {
+			const transaction: Transaction = {
+				from: tempAcc.address,
+				to: '0x0000000000000000000000000000000000000000',
+				value: BigInt(1),
+				type: BigInt(2),
+			};
+
+			transaction.gas = await web3Eth.estimateGas(transaction);
+
+			const response = await web3Eth.sendTransaction(transaction);
+			expect(response.events).toBeUndefined();
+			expect(response.type).toBe(BigInt(2));
+			expect(response.status).toBe(BigInt(1));
+
+			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
+			expect(minedTransactionData).toMatchObject(transaction);
+		});
+
+		it('should send a successful type 0x2 transaction (fee per gas from: calculateFeeData)', async () => {
+			const transaction: Transaction = {
+				from: tempAcc.address,
+				to: '0x0000000000000000000000000000000000000000',
+				value: BigInt(1),
+				type: BigInt(2),
+			};
+
+			const feeData = await web3Eth.calculateFeeData();
+			transaction.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+			transaction.maxFeePerGas = feeData.maxFeePerGas;
+
+			const response = await web3Eth.sendTransaction(transaction);
+			expect(response.events).toBeUndefined();
 			expect(response.type).toBe(BigInt(2));
 			expect(response.status).toBe(BigInt(1));
 
@@ -288,9 +375,41 @@ describe('Web3Eth.sendTransaction', () => {
 				to: '0x0000000000000000000000000000000000000000',
 				data: '0x64edfbf0e2c706ba4a09595315c45355a341a576cc17f3a19f43ac1c02f814ee',
 				value: BigInt(1),
+				type: BigInt(0),
 			};
 			const response = await web3Eth.sendTransaction(transaction, DEFAULT_RETURN_FORMAT);
 			expect(response.type).toBe(BigInt(0));
+			expect(response.events).toBeUndefined();
+			expect(response.status).toBe(BigInt(1));
+			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
+			expect(minedTransactionData).toMatchObject(transaction);
+		});
+
+		it('should send a successful autodetected type 0x0 gasprice as data', async () => {
+			const transaction: Transaction = {
+				from: tempAcc.address,
+				to: '0x0000000000000000000000000000000000000000',
+				data: '0x64edfbf0e2c706ba4a09595315c45355a341a576cc17f3a19f43ac1c02f814ee',
+				value: BigInt(1),
+				gasPrice: BigInt(2500000008),
+			};
+			const response = await web3Eth.sendTransaction(transaction, DEFAULT_RETURN_FORMAT);
+			expect(response.type).toBe(BigInt(0));
+			expect(response.status).toBe(BigInt(1));
+			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
+			expect(minedTransactionData).toMatchObject(transaction);
+		});
+
+		it('should send a successful default type 0x2 transaction with data', async () => {
+			const transaction: Transaction = {
+				from: tempAcc.address,
+				to: '0x0000000000000000000000000000000000000000',
+				data: '0x64edfbf0e2c706ba4a09595315c45355a341a576cc17f3a19f43ac1c02f814ee',
+				value: BigInt(1),
+				gas: BigInt(30000),
+			};
+			const response = await web3Eth.sendTransaction(transaction, DEFAULT_RETURN_FORMAT);
+			expect(response.type).toBe(BigInt(2));
 			expect(response.status).toBe(BigInt(1));
 			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
 			expect(minedTransactionData).toMatchObject(transaction);
@@ -304,6 +423,7 @@ describe('Web3Eth.sendTransaction', () => {
 			maxFeePerGas: BigInt(2500000016),
 		};
 		const response = await web3Eth.sendTransaction(transaction);
+		expect(response.events).toBeUndefined();
 		expect(response.type).toBe(BigInt(2));
 		expect(response.status).toBe(BigInt(1));
 		const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
@@ -318,11 +438,35 @@ describe('Web3Eth.sendTransaction', () => {
 			maxPriorityFeePerGas: BigInt(100),
 		};
 		const response = await web3Eth.sendTransaction(transaction);
+		expect(response.events).toBeUndefined();
 		expect(response.type).toBe(BigInt(2));
 		expect(response.status).toBe(BigInt(1));
 		const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
 		expect(minedTransactionData).toMatchObject(transaction);
 	});
+
+	itIf(isGeth)(
+		'should send type 0x2 transaction with maxPriorityFeePerGas got from await web3Eth.getMaxPriorityFeePerGas()',
+		async () => {
+			const transaction: Transaction = {
+				from: tempAcc.address,
+				to: '0x0000000000000000000000000000000000000000',
+				value: BigInt(1),
+				maxPriorityFeePerGas: await web3Eth.getMaxPriorityFeePerGas(),
+			};
+			const response = await web3Eth.sendTransaction(transaction);
+
+			// eslint-disable-next-line jest/no-standalone-expect
+			expect(response.events).toBeUndefined();
+			// eslint-disable-next-line jest/no-standalone-expect
+			expect(response.type).toBe(BigInt(2));
+			// eslint-disable-next-line jest/no-standalone-expect
+			expect(response.status).toBe(BigInt(1));
+			const minedTransactionData = await web3Eth.getTransaction(response.transactionHash);
+			// eslint-disable-next-line jest/no-standalone-expect
+			expect(minedTransactionData).toMatchObject(transaction);
+		},
+	);
 
 	describe('Transaction PromiEvents', () => {
 		let transaction: Transaction;
@@ -378,9 +522,10 @@ describe('Web3Eth.sendTransaction', () => {
 				expect(typeof data.gasUsed).toBe('bigint');
 				expect(typeof data.transactionIndex).toBe('bigint');
 				expect(data.status).toBe(BigInt(1));
-				expect(data.type).toBe(BigInt(0));
+				expect(data.type).toBe(BigInt(2));
+				expect(data.events).toBeUndefined();
 			});
-			expect.assertions(8);
+			expect.assertions(9);
 		});
 
 		it('should listen to the confirmation event', async () => {
@@ -448,42 +593,59 @@ describe('Web3Eth.sendTransaction', () => {
 				name: 'TransactionRevertInstructionError',
 				code: 402,
 				reason:
-					getSystemTestBackend() === 'geth'
+					getSystemTestBackend() === BACKEND.GETH
 						? 'err: intrinsic gas too low: have 1, want 21000 (supplied gas 1)'
-						: 'VM Exception while processing transaction: out of gas',
+						: 'base fee exceeds gas limit',
 			};
 
-			await expect(
-				web3Eth
-					.sendTransaction(transaction)
-					.on('error', error => expect(error).toMatchObject(expectedThrownError)),
-			).rejects.toMatchObject(expectedThrownError);
+			if (getSystemTestBackend() !== BACKEND.HARDHAT) {
+				await expect(
+					web3Eth
+						.sendTransaction(transaction)
+						.on('error', error => expect(error).toMatchObject(expectedThrownError)),
+				).rejects.toMatchObject(expectedThrownError);
+			} else {
+				try {
+					await web3Eth.sendTransaction(transaction);
+				} catch (error) {
+					expect((error as any).name).toEqual(expectedThrownError.name);
+					expect((error as any).code).toEqual(expectedThrownError.code);
+					expect((error as any).reason).toContain(expectedThrownError.reason);
+				}
+			}
 		});
-		it('Should throw TransactionRevertInstructionError because insufficient funds', async () => {
-			const transaction: Transaction = {
-				from: tempAcc.address,
-				to: '0x0000000000000000000000000000000000000000',
-				value: BigInt('999999999999999999999999999999999999999999999999999999999'),
-			};
+		itIf(getSystemTestBackend() !== BACKEND.HARDHAT)(
+			'Should throw TransactionRevertInstructionError because insufficient funds',
+			async () => {
+				const transaction: Transaction = {
+					from: tempAcc.address,
+					to: '0x0000000000000000000000000000000000000000',
+					value: BigInt(
+						'99999999999999999999999999999999999999999999999999999999999999999',
+					),
+				};
 
-			const expectedThrownError = {
-				name: 'TransactionRevertInstructionError',
-				message: 'Transaction has been reverted by the EVM',
-				code: 402,
-				reason:
-					getSystemTestBackend() === 'geth'
-						? expect.stringContaining(
-								'err: insufficient funds for gas * price + value: address',
-						  )
-						: 'VM Exception while processing transaction: insufficient balance',
-			};
+				const expectedThrownError = {
+					name: 'TransactionRevertInstructionError',
+					message: 'Transaction has been reverted by the EVM',
+					code: 402,
+					reason:
+						getSystemTestBackend() === BACKEND.GETH
+							? expect.stringContaining(
+									'err: insufficient funds for gas * price + value: address',
+							  )
+							: 'VM Exception while processing transaction: insufficient balance',
+				};
 
-			await expect(
-				web3Eth
-					.sendTransaction(transaction)
-					.on('error', error => expect(error).toMatchObject(expectedThrownError)),
-			).rejects.toMatchObject(expectedThrownError);
-		});
+				// eslint-disable-next-line jest/no-standalone-expect
+				await expect(
+					web3Eth
+						.sendTransaction(transaction)
+						// eslint-disable-next-line jest/no-standalone-expect
+						.on('error', error => expect(error).toMatchObject(expectedThrownError)),
+				).rejects.toMatchObject(expectedThrownError);
+			},
+		);
 
 		it('Should throw TransactionRevertInstructionError because of contract revert and return revert reason', async () => {
 			const transaction: Transaction = {
@@ -498,9 +660,9 @@ describe('Web3Eth.sendTransaction', () => {
 				name: 'TransactionRevertInstructionError',
 				code: 402,
 				reason:
-					getSystemTestBackend() === 'geth'
+					getSystemTestBackend() === BACKEND.GETH
 						? 'execution reverted: This is a send revert'
-						: 'VM Exception while processing transaction: revert This is a send revert',
+						: "Error: VM Exception while processing transaction: reverted with reason string 'This is a send revert'",
 				signature: '0x08c379a0',
 				data: '000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000155468697320697320612073656e64207265766572740000000000000000000000',
 				receipt: undefined,
@@ -526,9 +688,9 @@ describe('Web3Eth.sendTransaction', () => {
 				name: 'TransactionRevertWithCustomError',
 				code: 438,
 				reason:
-					getSystemTestBackend() === 'geth'
+					getSystemTestBackend() === BACKEND.GETH
 						? 'execution reverted'
-						: 'VM Exception while processing transaction: revert',
+						: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x72090e4d)',
 				signature: '0x72090e4d',
 				customErrorName: 'ErrorWithNoParams',
 				customErrorDecodedSignature: 'ErrorWithNoParams()',
@@ -556,9 +718,9 @@ describe('Web3Eth.sendTransaction', () => {
 				name: 'TransactionRevertWithCustomError',
 				code: 438,
 				reason:
-					getSystemTestBackend() === 'geth'
+					getSystemTestBackend() === BACKEND.GETH
 						? 'execution reverted'
-						: 'VM Exception while processing transaction: revert',
+						: 'Error: VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0xc85bda60000000000000000000000000000000000000000000000000000000000000002a0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000001c5468697320697320616e206572726f72207769746820706172616d7300000000)',
 				signature: '0xc85bda60',
 				data: '000000000000000000000000000000000000000000000000000000000000002a0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000001c5468697320697320616e206572726f72207769746820706172616d7300000000',
 				customErrorName: 'ErrorWithParams',
@@ -590,9 +752,9 @@ describe('Web3Eth.sendTransaction', () => {
 				name: 'TransactionRevertInstructionError',
 				code: 402,
 				reason:
-					getSystemTestBackend() === 'geth'
+					getSystemTestBackend() === BACKEND.GETH
 						? 'execution reverted: This is a send revert'
-						: 'VM Exception while processing transaction: revert This is a send revert',
+						: "Error: VM Exception while processing transaction: reverted with reason string 'This is a send revert'",
 				signature: '0x08c379a0',
 				data: '000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000155468697320697320612073656e64207265766572740000000000000000000000',
 			};

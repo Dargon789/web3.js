@@ -16,6 +16,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { toBigInt } from 'web3-utils';
+import { EventLog } from 'web3-types';
 import { Contract } from '../../src';
 import { ERC20TokenAbi, ERC20TokenBytecode } from '../shared_fixtures/build/ERC20Token';
 import { BasicAbi, BasicBytecode } from '../shared_fixtures/build/Basic';
@@ -23,8 +24,8 @@ import {
 	getSystemTestProvider,
 	createTempAccount,
 	createNewAccount,
+	closeOpenConnection,
 } from '../fixtures/system_test_utils';
-import { EventLog } from '../../src/types';
 
 const initialSupply = BigInt('5000000000');
 
@@ -58,6 +59,10 @@ describe('contract getPastEvent filter', () => {
 			await contractDeployed.methods.transfer(toAcc1.address, value).send(sendOptions);
 			await contractDeployed.methods.transfer(toAcc2.address, value).send(sendOptions);
 			await contractDeployed.methods.transfer(toAcc3.address, value).send(sendOptions);
+		});
+
+		afterAll(async () => {
+			await closeOpenConnection(contract);
 		});
 
 		it('should filter one event by address with event name and filter param', async () => {
@@ -155,6 +160,7 @@ describe('contract getPastEvent filter', () => {
 			);
 		});
 	});
+
 	describe('basic', () => {
 		let contract: Contract<typeof BasicAbi>;
 		let contractDeployed: Contract<typeof BasicAbi>;
@@ -186,6 +192,10 @@ describe('contract getPastEvent filter', () => {
 			await contractDeployed.methods
 				.firesMultiValueIndexedEventWithStringIndexed('str4', 4, true)
 				.send(sendOptions);
+		});
+
+		afterAll(async () => {
+			await closeOpenConnection(contract);
 		});
 
 		it('should filter one event by address with event name and filter param', async () => {

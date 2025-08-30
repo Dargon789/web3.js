@@ -15,7 +15,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'web3-utils';
 
 export default class WebSocket extends EventEmitter {
 	public readyState: number;
@@ -23,10 +23,9 @@ export default class WebSocket extends EventEmitter {
 	public CONNECTING = 0;
 	public OPEN = 1;
 
-	public constructor(...args: any[]) {
+	public constructor() {
+		super();
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		super(...args);
-
 		// Connected state
 		this.readyState = 1;
 	}
@@ -43,13 +42,11 @@ export default class WebSocket extends EventEmitter {
 		}, 100);
 	}
 
-	public addEventListener(event: any, cb: () => void) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		this.prependListener(event, cb);
+	public addEventListener(_event: any, _cb: () => void) {
+		this.on(_event, _cb);
 	}
 
-	public removeEventListener(event: any, cb: () => void) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		this.removeListener(event, cb);
+	public removeEventListener(_event: any, _cb: () => void) {
+		this.off(_event, _cb);
 	}
 }

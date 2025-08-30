@@ -123,4 +123,51 @@ Documentation:
 
 -   Dependencies updated
 
+## [4.0.6]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.0.7]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.0.8]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.1.0]
+
+### Added
+
+-   Added function `setAddress` in ENS and Resolver classes (#5956)
+
+## [4.2.0]
+
+### Add
+
+-   Added function getText and getName in ENS and resolver classes (#6914)
+
+## [4.3.0]
+
+### Added
+
+-   `defaultReturnFormat` was added to all methods that have `ReturnType` param. (#6947)
+
+## [4.4.0]
+
+### Added
+
+-   `getText` now supports first param Address
+-   `getName` has optional second param checkInterfaceSupport
+
+### Fixed
+
+-   `getName` reverse resolution
+
 ## [Unreleased]

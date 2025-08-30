@@ -148,4 +148,46 @@ Documentation:
 
 -   ESM import bug (#6359)
 
+## [1.1.2]
+
+### Changed
+
+-   Dependencies updated
+
+## [1.1.3]
+
+### Fixed
+
+-   Added new SchemaFormatError (#6434)
+
+## [1.1.4]
+
+### Fixed
+
+-   Fixed grammar and spelling in `transactionTimeoutHint` (#6559)
+
+## [1.2.0]
+
+### Added
+
+-   Added `InvalidIntegerError` error for fromWei and toWei (#7052)
+
+## [1.2.1]
+
+### Fixed
+
+-   Fixed the undefined data in `Eip838ExecutionError` constructor (#6905)
+
+## [1.3.0]
+
+### Added
+
+-   Added optional `statusCode` property of response in ResponseError.
+
+## [1.3.1]
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
 ## [Unreleased]

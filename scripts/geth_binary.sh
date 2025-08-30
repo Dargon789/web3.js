@@ -21,11 +21,11 @@ getOS(){
 getDownloadLink(){
     case "$OS" in
       SOLARIS*) LINK="-" ;;
-      OSX*)  LINK="https://gethstore.blob.core.windows.net/builds/geth-darwin-amd64-1.12.2-bed84606.tar.gz" ;;
-      LINUX*)   LINK="https://gethstore.blob.core.windows.net/builds/geth-linux-386-1.12.2-bed84606.tar.gz" ;;
-      BSD*)     LINK="https://gethstore.blob.core.windows.net/builds/geth-darwin-amd64-1.12.2-bed84606.tar.gz" ;;
-      WINDOWS*)    LINK="https://gethstore.blob.core.windows.net/builds/geth-windows-386-1.12.2-bed84606.exe" ;;
-      "ALSO WINDOWS"*)  LINK="https://gethstore.blob.core.windows.net/builds/geth-windows-386-1.12.2-bed84606.exe" ;;
+      OSX*)  LINK="https://gethstore.blob.core.windows.net/builds/geth-darwin-arm64-1.13.14-2bd6bd01.tar.gz" ;;
+      LINUX*)   LINK="https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.13.14-2bd6bd01.tar.gz" ;;
+      BSD*)     LINK="https://gethstore.blob.core.windows.net/builds/geth-darwin-arm64-1.13.14-2bd6bd01.tar.gz" ;;
+      WINDOWS*)    LINK="https://gethstore.blob.core.windows.net/builds/geth-windows-amd64-1.13.14-2bd6bd01.exe" ;;
+      "ALSO WINDOWS"*)  LINK="https://gethstore.blob.core.windows.net/builds/geth-windows-amd64-1.13.14-2bd6bd01.exe" ;;
       *)        LINK="-" ;;
     esac
 }
@@ -59,15 +59,26 @@ start() {
     download
 	if [ -z "${ORIGARGS[1]}" ]; then
 		echo "Starting geth..."
-		echo "geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0 "
+		echo "geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0"
 		${TMP_FOLDER}/geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0 --rpc.enabledeprecatedpersonal
 	else
 		echo "Starting geth..."
-		echo "geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0  &>/dev/null &"
+		echo "geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0 &>/dev/null &"
 		${TMP_FOLDER}/geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0 --rpc.enabledeprecatedpersonal &>/dev/null &
 		echo "Waiting for geth..."
 		npx wait-port -t 10000 "$WEB3_SYSTEM_TEST_PORT"
 	fi
+}
+
+startManual() {
+    download
+
+    echo "Starting manual geth..."
+    echo "geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0 --dev.gaslimit 9000000000000000 --rpc.txfeecap=1000000 &>/dev/null &"
+    ${TMP_FOLDER}/geth --ipcpath $IPC_PATH --nodiscover --nousb --ws --ws.addr 0.0.0.0 --ws.port $WEB3_SYSTEM_TEST_PORT --http --http.addr 0.0.0.0 --http.port $WEB3_SYSTEM_TEST_PORT --allow-insecure-unlock --http.api personal,web3,eth,admin,debug,txpool,net --ws.api personal,web3,eth,admin,debug,miner,txpool,net --dev --mine --dev.period=0 --rpc.enabledeprecatedpersonal --dev.gaslimit 9000000000000000 --rpc.txfeecap=1000000 &>/dev/null &
+    echo "Waiting for geth..."
+    npx wait-port -t 10000 "$WEB3_SYSTEM_TEST_PORT"
+
 }
 
 startSync() {
@@ -95,6 +106,7 @@ stop() {
 }
 
 case $1 in
+manualStart) startManual ;;
 syncStart) startSync ;;
 syncStop) syncStop ;;
 start) start ;;

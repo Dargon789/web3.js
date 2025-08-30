@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--   Fix issue when importing `web3-validator` package within browser environments (Webpack minified filename changed from `index.min.js` to `web3-validator.min.js`) (#5710)
+-   Fix issue when importing `web3-validator` package within browser environments (webpack minified filename changed from `index.min.js` to `web3-validator.min.js`) (#5710)
 
 ## [0.1.1-alpha.4]
 
@@ -141,4 +141,42 @@ Documentation:
 
 -   ESM import bug (#6359)
 
+## [2.0.2]
+
+### Changed
+
+-   Dependencies updated
+
+## [2.0.3]
+
+### Fixed
+
+-   Multi-dimensional arrays are now handled properly when parsing ABIs (#6435)
+-   Fix issue with default config with babel (and React): "TypeError: Cannot convert a BigInt value to a number #6187" (#6506)
+-   Validator will now properly handle all valid numeric type sizes: intN / uintN where 8 < = N < = 256 and N % 8 == 0 (#6434)
+-   Will now throw SchemaFormatError when unsupported format is passed to `convertToZod` method (#6434)
+
+## [2.0.4]
+
+### Fixed
+
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+## [2.0.5]
+
+### Fixed
+
+-   Multi-dimensional arrays(with a fix length) are now handled properly when parsing ABIs (#6798)
+
+## [2.0.6]
+
+### Fixed
+
+-   The JSON schema conversion process now correctly assigns an id when the `abi.name` is not available, for example, in the case of public mappings. (#6981)
+-   `browser` entry point that was pointing to a non-existing bundle file was removed from `package.json` (#7015)
+
 ## [Unreleased]
+
+### Added
+
+-   Add web3-validator dist path for react-native builds (#7416)

@@ -15,6 +15,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @module Utils
+ */
+
 import { InvalidBlockError } from 'web3-errors';
 import {
 	checkAddressCheckSum as checkAddressCheckSumValidator,
@@ -30,7 +34,7 @@ import {
 	isTopicInBloom as isTopicInBloomValidator,
 	isUserEthereumAddressInBloom as isUserEthereumAddressInBloomValidator,
 } from 'web3-validator';
-import { BlockNumberOrTag, BlockTags } from 'web3-types';
+import { BlockNumberOrTag, BlockTags, ContractInitOptions } from 'web3-types';
 
 /**
  * @deprecated Will be removed in next release. Please use `web3-validator` package instead.
@@ -130,10 +134,10 @@ export const compareBlockNumbers = (blockA: BlockNumberOrTag, blockB: BlockNumbe
 	) {
 		return 0;
 	}
-	if (blockA === 'earliest' && blockB > 0) {
+	if (blockA === 'earliest') {
 		return -1;
 	}
-	if (blockB === 'earliest' && blockA > 0) {
+	if (blockB === 'earliest') {
 		return 1;
 	}
 
@@ -168,5 +172,22 @@ export const compareBlockNumbers = (blockA: BlockNumberOrTag, blockB: BlockNumbe
 	}
 	return 1;
 };
+
+export const isContractInitOptions = (options: unknown): options is ContractInitOptions =>
+	typeof options === 'object' &&
+	!isNullishValidator(options) &&
+	Object.keys(options).length !== 0 &&
+	[
+		'input',
+		'data',
+		'from',
+		'gas',
+		'gasPrice',
+		'gasLimit',
+		'address',
+		'jsonInterface',
+		'syncWithContext',
+		'dataInputFill',
+	].some(key => key in options);
 
 export const isNullish = isNullishValidator;

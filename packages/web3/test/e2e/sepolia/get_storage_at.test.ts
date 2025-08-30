@@ -64,12 +64,25 @@ describe(`${getSystemTestBackend()} tests - getStorageAt`, () => {
 			],
 		}),
 	)('getStorageAt', async ({ storageSlot, block }) => {
+		let blockData = sepoliaBlockData[block];
+		if (block === 'blockHash' || block === 'blockNumber') {
+			/**
+			 * @NOTE Getting a block too far back in history
+			 * results in a missing trie node error, so
+			 * we get latest block for this test
+			 */
+			const b = await web3.eth.getBlock('finalized');
+			blockData = Number(b.number);
+			if (block === 'blockHash') {
+				blockData = b.hash as string;
+			}
+		}
+
 		const result = await web3.eth.getStorageAt(
 			getE2ETestContractAddress(),
 			storageSlot,
-			sepoliaBlockData[block],
+			blockData,
 		);
-
 		if (sepoliaBlockData[block] === 'earliest') {
 			// Nethermind returns 0x while Geth returns 0x0000000000000000000000000000000000000000000000000000000000000000
 			// eslint-disable-next-line jest/no-conditional-expect

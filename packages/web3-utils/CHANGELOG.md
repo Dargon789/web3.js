@@ -152,4 +152,102 @@ Documentation:
 
 -   Dependencies updated
 
+## [4.0.6]
+
+### Fixed
+
+-   `soliditySha3()` with BigInt support
+
+## [4.0.7]
+
+### Added
+
+-   As a replacment of the node EventEmitter, a custom `EventEmitter` has been implemented and exported. (#6398)
+
+### Fixed
+
+-   Fix issue with default config with babel (and React): "TypeError: Cannot convert a BigInt value to a number #6187" (#6506)
+-   Fixed bug in chunks processing logic (#6496)
+
+## [4.1.0]
+
+### Added
+
+-   `SocketProvider` now contains public function `getPendingRequestQueueSize`, `getSentRequestsQueueSize` and `clearQueues` (#6479)
+-   Added `safeDisconnect` as a `SocketProvider` method to disconnect only when request queue size and send request queue size is 0 (#6479)
+-   Add `isContractInitOptions` method (#6555)
+
+### Fixed
+
+-   Fix unnecessary array copy when pack encoding (#6553)
+
+## [4.1.1]
+
+### Fixed
+
+-   Fixed an issue with detecting Uint8Array (#6486)
+
+## [4.2.0]
+
+### Added
+
+-   Adds missing exported type `AbiItem` from 1.x to v4 for compatabiltiy (#6678)
+
+## [4.2.1]
+
+### Fixed
+
+-   replaced our eventEmitter to EventEmitter3 to support react native builds (#6253)
+
+## [4.2.2]
+
+### Fixed
+
+-   fixed erroneous parsing of big numbers in the `toNumber(...)` function (#6880)
+
+## [4.2.3]
+
+### Changed
+
+-   Method `format` was changed. Now it has default value `DEFAULT_RETURN_FORMAT` for `returnFormat` parameter (#6947)
+
+### Fixed
+
+-   fixed toHex incorrectly hexing Uint8Arrays and Buffer (#6957)
+-   fixed isUint8Array not returning true for Buffer (#6957)
+
+## [4.3.0]
+
+### Added
+
+-   `toWei` add warning when using large numbers or large decimals that may cause precision loss (#6908)
+-   `toWei` and `fromWei` now supports integers as a unit. (#7053)
+
+### Fixed
+
+-   `toWei` support numbers in scientific notation (#6908)
+-   `toWei` and `fromWei` trims according to ether unit successfuly (#7044)
+
+## [4.3.1]
+
+### Fixed
+
+-   `_sendPendingRequests` will catch unhandled errors from `_sendToSocket` (#6968)
+
+## [4.3.2]
+
+### Fixed
+
+-   fix `padRight` validation failure on large `uint` (#7265)
+
+## [4.3.3]
+
+### Fixed
+
+-   Make `fromWei` return "0" when input is `0` (#7387)
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
 ## [Unreleased]

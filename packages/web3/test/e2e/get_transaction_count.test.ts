@@ -16,14 +16,19 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 import Web3 from '../../src';
 import { getSystemE2ETestProvider, getE2ETestAccountAddress } from './e2e_utils';
-import { closeOpenConnection, getSystemTestBackend } from '../shared_fixtures/system_tests_utils';
+import {
+	closeOpenConnection,
+	getSystemTestBackend,
+	BACKEND,
+} from '../shared_fixtures/system_tests_utils';
 import { toAllVariants } from '../shared_fixtures/utils';
 import { sepoliaBlockData } from './fixtures/sepolia';
 import { mainnetBlockData } from './fixtures/mainnet';
 
 describe(`${getSystemTestBackend()} tests - getTransactionCount`, () => {
 	const provider = getSystemE2ETestProvider();
-	const blockData = getSystemTestBackend() === 'sepolia' ? sepoliaBlockData : mainnetBlockData;
+	const blockData =
+		getSystemTestBackend() === BACKEND.SEPOLIA ? sepoliaBlockData : mainnetBlockData;
 
 	let web3: Web3;
 
@@ -57,13 +62,22 @@ describe(`${getSystemTestBackend()} tests - getTransactionCount`, () => {
 			],
 		}),
 	)('getTransactionCount', async ({ block }) => {
-		const result = await web3.eth.getTransactionCount(
-			getE2ETestAccountAddress(),
-			blockData[block],
-		);
+		let blockOrTag = blockData[block];
+		if (block === 'blockHash' || block === 'blockNumber') {
+			/**
+			 * @NOTE Getting a block too far back in history
+			 * results in a missing trie node error, so
+			 * we get latest block for this test
+			 */
+			const b = await web3.eth.getBlock('finalized');
+			blockOrTag = block === 'blockHash' ? String(b.hash) : Number(b.number);
+		}
+
+		const result = await web3.eth.getTransactionCount(getE2ETestAccountAddress(), blockOrTag);
 
 		if (block === 'blockHash' || block === 'blockNumber') {
-			const expectedTxCount = getSystemTestBackend() === 'sepolia' ? BigInt(1) : BigInt(11);
+			const expectedTxCount =
+				getSystemTestBackend() === BACKEND.SEPOLIA ? BigInt(47) : BigInt(40);
 			// eslint-disable-next-line jest/no-conditional-expect
 			expect(result).toBe(expectedTxCount);
 		} else {

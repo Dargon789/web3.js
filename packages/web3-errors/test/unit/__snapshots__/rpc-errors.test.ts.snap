@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`rpc errors EIP1193ProviderRpcError test constructor with a known code (1000) 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": 1000,
   "innerError": undefined,
   "message": "The connection successfully completed the purpose for which it was created.",
@@ -10,7 +11,8 @@ Object {
 `;
 
 exports[`rpc errors EIP1193ProviderRpcError test constructor with no code 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": undefined,
   "innerError": undefined,
   "message": "",
@@ -19,7 +21,8 @@ Object {
 `;
 
 exports[`rpc errors EIP1193ProviderRpcError test constructor with un registered code 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": 99999,
   "innerError": undefined,
   "message": "An Rpc error has occured with a code of 99999",
@@ -28,11 +31,12 @@ Object {
 `;
 
 exports[`rpc errors InternalError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32603,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -47,11 +51,12 @@ Object {
 `;
 
 exports[`rpc errors InvalidInputError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32000,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -66,11 +71,12 @@ Object {
 `;
 
 exports[`rpc errors InvalidParamsError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32602,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -85,11 +91,12 @@ Object {
 `;
 
 exports[`rpc errors InvalidRequestError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32600,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -104,11 +111,12 @@ Object {
 `;
 
 exports[`rpc errors LimitExceededError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32005,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -123,11 +131,12 @@ Object {
 `;
 
 exports[`rpc errors MethodNotFoundError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32601,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -142,11 +151,12 @@ Object {
 `;
 
 exports[`rpc errors MethodNotSupported test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32004,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -161,11 +171,12 @@ Object {
 `;
 
 exports[`rpc errors ParseError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32700,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -180,11 +191,12 @@ Object {
 `;
 
 exports[`rpc errors ResourceUnavailableError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32002,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -199,11 +211,12 @@ Object {
 `;
 
 exports[`rpc errors ResourcesNotFoundError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32001,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -218,11 +231,12 @@ Object {
 `;
 
 exports[`rpc errors TransactionRejectedError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32003,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -237,11 +251,12 @@ Object {
 `;
 
 exports[`rpc errors VersionNotSupportedError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": -32006,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -256,11 +271,12 @@ Object {
 `;
 
 exports[`rpc errors rpcErrors.RpcError test constructor 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": 123,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },
@@ -275,11 +291,12 @@ Object {
 `;
 
 exports[`rpc errors rpcErrors.RpcError test constructor with custom message 1`] = `
-Object {
+{
+  "cause": undefined,
   "code": 123,
-  "error": Object {
+  "error": {
     "code": 123,
-    "data": Object {
+    "data": {
       "a": "10",
       "b": "20",
     },

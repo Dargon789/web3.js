@@ -24,6 +24,21 @@ import { isHexStrict } from './string.js';
  */
 export const isBigInt = (value: ValidInputTypes): boolean => typeof value === 'bigint';
 
+// Note: this could be simplified using ** operator, but babel does not handle it well
+// 	you can find more at: https://github.com/babel/babel/issues/13109 and https://github.com/web3/web3.js/issues/6187
+/** @internal */
+export const bigintPower = (base: bigint, expo: bigint) => {
+	// edge case
+	if (expo === BigInt(0)) {
+		return BigInt(1);
+	}
+	let res = base;
+	for (let index = 1; index < expo; index += 1) {
+		res *= base;
+	}
+	return res;
+};
+
 export const isUInt = (
 	value: ValidInputTypes,
 	options: { abiType: string; bitSize?: never } | { bitSize: number; abiType?: never } = {
@@ -49,7 +64,7 @@ export const isUInt = (
 		size = options.bitSize;
 	}
 
-	const maxSize = BigInt(2) ** BigInt(size ?? 256) - BigInt(1);
+	const maxSize = bigintPower(BigInt(2), BigInt(size ?? 256)) - BigInt(1);
 
 	try {
 		const valueToCheck =
@@ -94,8 +109,8 @@ export const isInt = (
 		size = options.bitSize;
 	}
 
-	const maxSize = BigInt(2) ** BigInt((size ?? 256) - 1);
-	const minSize = BigInt(-1) * BigInt(2) ** BigInt((size ?? 256) - 1);
+	const maxSize = bigintPower(BigInt(2), BigInt((size ?? 256) - 1));
+	const minSize = BigInt(-1) * bigintPower(BigInt(2), BigInt((size ?? 256) - 1));
 
 	try {
 		const valueToCheck =

@@ -36,21 +36,19 @@ export const mergeDeep = (
 	destination: Record<string, unknown>,
 	...sources: Record<string, unknown>[]
 ): Record<string, unknown> => {
-	const result = destination; // clone deep here
-	if (!isIterable(result)) {
-		return result;
+	if (!isIterable(destination)) {
+		return destination;
 	}
+	const result = { ...destination }; // clone deep here
 	for (const src of sources) {
+		// const src = { ..._src };
 		// eslint-disable-next-line no-restricted-syntax
 		for (const key in src) {
 			if (isIterable(src[key])) {
 				if (!result[key]) {
 					result[key] = {};
 				}
-				mergeDeep(
-					result[key] as Record<string, unknown>,
-					src[key] as Record<string, unknown>,
-				);
+				result[key] = mergeDeep(result[key] as Record<string, unknown>, src[key]);
 			} else if (!isNullish(src[key]) && Object.hasOwnProperty.call(src, key)) {
 				if (Array.isArray(src[key]) || src[key] instanceof TypedArray) {
 					result[key] = (src[key] as unknown[]).slice(0);

@@ -16,8 +16,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { AbiError } from 'web3-errors';
-import { AbiCoder, ParamType } from '@ethersproject/abi';
-import { isNullish, leftPad, rightPad, toHex } from 'web3-utils';
+import { isNullish, isUint8Array, leftPad, rightPad, toHex } from 'web3-utils';
 import {
 	AbiInput,
 	AbiCoderStruct,
@@ -28,7 +27,6 @@ import {
 	AbiFunctionFragment,
 	AbiConstructorFragment,
 } from 'web3-types';
-import ethersAbiCoder from './ethers_abi_coder.js';
 
 export const isAbiFragment = (item: unknown): item is AbiFragment =>
 	!isNullish(item) &&
@@ -154,6 +152,10 @@ export const isOddHexstring = (param: unknown): boolean =>
 export const formatOddHexstrings = (param: string): string =>
 	isOddHexstring(param) ? `0x0${param.substring(2)}` : param;
 
+const paramTypeBytes = /^bytes([0-9]*)$/;
+const paramTypeBytesArray = /^bytes([0-9]*)\[\]$/;
+const paramTypeNumber = /^(u?int)([0-9]*)$/;
+const paramTypeNumberArray = /^(u?int)([0-9]*)\[\]$/;
 /**
  * Handle some formatting of params for backwards compatibility with Ethers V4
  */
@@ -162,13 +164,9 @@ export const formatParam = (type: string, _param: unknown): unknown => {
 
 	// clone if _param is an object
 	const param = typeof _param === 'object' && !Array.isArray(_param) ? { ..._param } : _param;
-	const paramTypeBytes = /^bytes([0-9]*)$/;
-	const paramTypeBytesArray = /^bytes([0-9]*)\[\]$/;
-	const paramTypeNumber = /^(u?int)([0-9]*)$/;
-	const paramTypeNumberArray = /^(u?int)([0-9]*)\[\]$/;
 
 	// Format BN to string
-	if (param instanceof BigInt) {
+	if (param instanceof BigInt || typeof param === 'bigint') {
 		return param.toString(10);
 	}
 
@@ -181,7 +179,7 @@ export const formatParam = (type: string, _param: unknown): unknown => {
 	// Format correct width for u?int[0-9]*
 	let match = paramTypeNumber.exec(type);
 	if (match) {
-		const size = parseInt(match[2] ?? '256', 10);
+		const size = parseInt(match[2] ? match[2] : '256', 10);
 		if (size / 8 < (param as { length: number }).length) {
 			// pad to correct bit width
 			return leftPad(param as string, size);
@@ -191,7 +189,7 @@ export const formatParam = (type: string, _param: unknown): unknown => {
 	// Format correct length for bytes[0-9]+
 	match = paramTypeBytes.exec(type);
 	if (match) {
-		const hexParam = param instanceof Uint8Array ? toHex(param) : param;
+		const hexParam = isUint8Array(param) ? toHex(param) : param;
 
 		// format to correct length
 		const size = parseInt(match[1], 10);
@@ -212,35 +210,6 @@ export const formatParam = (type: string, _param: unknown): unknown => {
 		return formatOddHexstrings(hexParam as string);
 	}
 	return param;
-};
-
-// eslint-disable-next-line consistent-return
-export const modifyParams = (
-	coder: ReturnType<AbiCoder['_getCoder']>,
-	param: unknown[],
-	// eslint-disable-next-line consistent-return
-): unknown => {
-	if (coder.name === 'array') {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return param.map(p =>
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-			modifyParams(ethersAbiCoder._getCoder(ParamType.from(coder.type.replace('[]', ''))), [
-				p,
-			]),
-		);
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
-	(coder as any).coders.forEach((c: ReturnType<AbiCoder['_getCoder']>, i: number) => {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		if (c.name === 'tuple') {
-			modifyParams(c, [param[i]]);
-		} else {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, no-param-reassign
-			param[i] = formatParam(c.name, param[i]);
-		}
-	});
-	return [];
 };
 
 /**
@@ -284,6 +253,7 @@ export const flattenTypes = (
  * returns a string
  */
 export const jsonInterfaceMethodToString = (json: AbiFragment): string => {
+	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 	if (isAbiErrorFragment(json) || isAbiEventFragment(json) || isAbiFunctionFragment(json)) {
 		if (json.name?.includes('(')) {
 			return json.name;

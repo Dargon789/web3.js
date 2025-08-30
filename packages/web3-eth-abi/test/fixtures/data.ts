@@ -976,6 +976,40 @@ export const validDecodeContractErrorData: {
 }[] = [
 	{
 		input: [
+			[],
+			{
+				code: 12,
+				message: 'message',
+				data: '0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000155468697320697320612063616c6c207265766572740000000000000000000000',
+			},
+		],
+		output: {
+			errorName: 'Error',
+			errorSignature: 'Error(string)',
+			errorArgs: {
+				message: 'This is a call revert',
+			},
+		},
+	},
+	{
+		input: [
+			[],
+			{
+				code: 12,
+				message: 'message',
+				data: '0x4e487b71000000000000000000000000000000000000000000000000000000000000002a00000000000000000000000000000000000000000000000000000000000000',
+			},
+		],
+		output: {
+			errorName: 'Panic',
+			errorSignature: 'Panic(uint256)',
+			errorArgs: {
+				code: 42,
+			},
+		},
+	},
+	{
+		input: [
 			[
 				{ inputs: [], name: 'ErrorWithNoParams', type: 'error' },
 				{
@@ -1031,7 +1065,7 @@ export const validDecodeContractErrorData: {
 				code: 42,
 				message: 'This is an error with params',
 			},
-			innerError: {
+			cause: {
 				code: -32000,
 			},
 		},
@@ -1067,7 +1101,7 @@ export const validDecodeContractErrorData: {
 				code: 42,
 				message: 'This is an error with params',
 			},
-			innerError: {
+			cause: {
 				code: 3,
 			},
 		},
@@ -1112,4 +1146,53 @@ export const invalidIsAbiConstructorFragment: {
 	{
 		input: { inputs: [], stateMutability: 'nonpayable', type: 'function' },
 	},
+];
+
+export const mapTypesValidData: [any, any][] = [
+	[
+		['string', 'uint256'],
+		['string', 'uint256'],
+	],
+	[
+		[
+			{ type: 'string', name: 'test' },
+			{ type: 'uint256', name: 'test' },
+		],
+		[
+			{ type: 'string', name: 'test' },
+			{ type: 'uint256', name: 'test' },
+		],
+	],
+	[
+		[
+			{ type: 'function', name: 'test' },
+			{ type: 'uint256', name: 'test' },
+		],
+		[
+			{ type: 'bytes24', name: 'test' },
+			{ type: 'uint256', name: 'test' },
+		],
+	],
+	[
+		[{ name1: ['string'] }],
+		[{ components: [{ name: '0', type: 'string' }], name: 'name1', type: 'tuple' }],
+	],
+];
+
+export const formatParamValidData: [[string, any], any][] = [
+	[['string', { name: 'test' }], { name: 'test' }],
+	[['string', [{ name: 'test' }]], [{ name: 'test' }]],
+	[['string', BigInt(1)], '1'],
+	[['int', 123], 123],
+	[['bytes', '0x99d42941'], '0x99d42941'],
+	[
+		['int', '0x1234567890123456789012345678901234567890'],
+		'0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001234567890123456789012345678901234567890',
+	],
+	[
+		['bytes256[]', ['0x99d42941']],
+		[
+			'0x99d42941000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+		],
+	],
 ];

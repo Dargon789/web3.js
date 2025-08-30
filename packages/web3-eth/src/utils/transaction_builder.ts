@@ -29,7 +29,6 @@ import {
 	Web3NetAPI,
 	Numbers,
 	DataFormat,
-	DEFAULT_RETURN_FORMAT,
 	FormatType,
 	ETH_DATA_FORMAT,
 } from 'web3-types';
@@ -65,7 +64,8 @@ export const getTransactionFromOrToAttr = (
 	privateKey?: HexString | Uint8Array,
 ): Address | undefined => {
 	if (transaction !== undefined && attr in transaction && transaction[attr] !== undefined) {
-		if (typeof transaction[attr] === 'string' && isAddress(transaction[attr] as string)) {
+		if (typeof transaction[attr] === 'string' && isAddress(transaction[attr])) {
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			return transaction[attr] as Address;
 		}
 		if (!isHexStrict(transaction[attr] as string) && isNumber(transaction[attr] as Numbers)) {
@@ -99,7 +99,7 @@ export const getTransactionFromOrToAttr = (
 export const getTransactionNonce = async <ReturnFormat extends DataFormat>(
 	web3Context: Web3Context<EthExecutionAPI>,
 	address?: Address,
-	returnFormat: ReturnFormat = DEFAULT_RETURN_FORMAT as ReturnFormat,
+	returnFormat: ReturnFormat = web3Context.defaultReturnFormat as ReturnFormat,
 ) => {
 	if (isNullish(address)) {
 		// TODO if (web3.eth.accounts.wallet) use address from local wallet
@@ -114,7 +114,6 @@ export const getTransactionType = (
 	web3Context: Web3Context<EthExecutionAPI>,
 ) => {
 	const inferredType = detectTransactionType(transaction, web3Context);
-
 	if (!isNullish(inferredType)) return inferredType;
 	if (!isNullish(web3Context.defaultTransactionType))
 		return format({ format: 'uint' }, web3Context.defaultTransactionType, ETH_DATA_FORMAT);
@@ -134,7 +133,7 @@ export async function defaultTransactionBuilder<ReturnType = Transaction>(option
 	let populatedTransaction = format(
 		transactionSchema,
 		options.transaction,
-		DEFAULT_RETURN_FORMAT,
+		options.web3Context.defaultReturnFormat,
 	) as InternalTransaction;
 
 	if (isNullish(populatedTransaction.from)) {
@@ -156,7 +155,7 @@ export async function defaultTransactionBuilder<ReturnType = Transaction>(option
 	}
 
 	if (isNullish(populatedTransaction.value)) {
-		populatedTransaction.value = '0x';
+		populatedTransaction.value = '0x0';
 	}
 
 	if (!isNullish(populatedTransaction.data)) {

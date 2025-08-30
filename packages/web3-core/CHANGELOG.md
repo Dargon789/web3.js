@@ -123,7 +123,7 @@ Documentation:
 
 ### Added
 
--   Web3Subscription constructor accept a Subscription Manager (as an alternative to accepting Request Manager that is now marked marked as deprecated) (#6210)
+-   Web3Subscription constructor accept a Subscription Manager (as an alternative to accepting Request Manager that is now marked as deprecated) (#6210)
 
 ### Changed
 
@@ -172,5 +172,83 @@ Documentation:
 ### Added
 
 -   To fix issue #6190, added the functionality to introduce different timeout value for Web3. (#6336)
+
+## [4.2.0]
+
+### Added
+
+-   Added to `Web3Config` property `contractDataInputFill` allowing users to have the choice using property `data`, `input` or `both` for contract methods to be sent to the RPC provider when creating contracts. (#6377) (#6400)
+
+## [4.3.0]
+
+### Changed
+
+-   defaultTransactionType is now type 0x2 instead of 0x0 (#6282)
+-   Allows formatter to parse large base fee (#6456)
+-   The package now uses `EventEmitter` from `web3-utils` that works in node environment as well as in the browser. (#6398)
+
+### Fixed
+
+-   Fix the issue: "Uncaught TypeError: Class extends value undefined is not a constructor or null #6371". (#6398)
+
+## [4.3.1]
+
+### Fixed
+
+-   Fix `Web3Config` to properly update within other web3 packages when `setConfig` is used (#6555)
+
+### Added
+
+-   Added `isMetaMaskProvider` function to check if provider is metamask (#6534)
+
+## [4.3.2]
+
+### Changed
+
+-   Web3config `contractDataInputFill` has been defaulted to `data`, instead of `input`. (#6622)
+
+## [4.4.0]
+
+### Added
+
+-   `defaultReturnFormat` was added to the configuration options. (#6947)
+
+### Changed
+
+-   Interface `RequestManagerMiddleware` was changed (#7003)
+
+### Fixed
+
+-   Set a try catch block if processesingError fails (#7022)
+
+## [4.5.0]
+
+### Added
+
+-   Now when existing packages are added in web3, will be available for plugins via context. (#7088)
+
+## [4.5.1]
+
+### Fixed
+
+-   `setConfig()` fix for `setMaxListenerWarningThreshold` fix (#5079)
+
+## [4.6.0]
+
+### Added
+
+-   Adds a new property (`customTransactionSchema`) to `Web3ConfigOptions`(#7227)
+
+## [4.7.0]
+
+### Added
+
+-   Added new property `ignoreGasPricing` to `Web3ConfigOptions`. If `ignoreGasPricing` is true, gasPrice will not be estimated (#7320)
+
+## [4.7.1]
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
 
 ## [Unreleased]

@@ -116,4 +116,22 @@ Documentation:
 
 -   Dependencies updated
 
+## [4.0.6]
+
+### Changed
+
+-   Dependencies updated
+
+## [4.0.7]
+
+### Fixed
+
+-   Fixed bug in chunks processing logic (#6496)
+
+## [4.0.8]
+
+### Changed
+
+-   Update dependancies (#7109)
+
 ## [Unreleased]

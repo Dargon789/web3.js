@@ -26,7 +26,6 @@ import {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Contract, decodeEventABI } from 'web3-eth-contract';
 import { hexToNumber, hexToString, numberToHex, getStorageSlotNumForLongString } from 'web3-utils';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Web3Eth } from '../../src';
 
 import {
@@ -36,15 +35,12 @@ import {
 	createNewAccount,
 	itIf,
 	createTempAccount,
+	describeIf,
+	mapFormatToType,
+	BACKEND,
 } from '../fixtures/system_test_utils';
 import { BasicAbi, BasicBytecode } from '../shared_fixtures/build/Basic';
-import {
-	eventAbi,
-	mapFormatToType,
-	sendFewTxes,
-	validateReceipt,
-	validateTransaction,
-} from './helper';
+import { eventAbi, sendFewTxes, validateReceipt, validateTransaction } from './helper';
 
 describe('rpc', () => {
 	let web3Eth: Web3Eth;
@@ -84,11 +80,14 @@ describe('rpc', () => {
 	});
 
 	describe('methods', () => {
-		itIf(!['geth'].includes(getSystemTestBackend()))('getProtocolVersion', async () => {
-			const version = await web3Eth.getProtocolVersion();
-			// eslint-disable-next-line jest/no-standalone-expect
-			expect(parseInt(version, 16)).toBeGreaterThan(0);
-		});
+		itIf(!['geth', 'hardhat'].includes(getSystemTestBackend()))(
+			'getProtocolVersion',
+			async () => {
+				const version = await web3Eth.getProtocolVersion();
+				// eslint-disable-next-line jest/no-standalone-expect
+				expect(parseInt(version, 16)).toBeGreaterThan(0);
+			},
+		);
 
 		// TODO:in beta,  test eth_syncing during sync mode with return obj having ( startingblock, currentBlock, heighestBlock )
 		it('isSyncing', async () => {
@@ -103,27 +102,38 @@ describe('rpc', () => {
 			expect(coinbase).toHaveLength(42);
 		});
 
-		it('isMining', async () => {
+		itIf(getSystemTestBackend() !== BACKEND.HARDHAT)('isMining', async () => {
 			const isMining = await web3Eth.isMining();
 
-			if (getSystemTestBackend() !== 'geth')
-				// eslint-disable-next-line jest/no-conditional-expect
+			if (getSystemTestBackend() !== BACKEND.GETH)
+				// eslint-disable-next-line jest/no-conditional-expect, jest/no-standalone-expect
 				expect(isMining).toBe(true);
 		});
 
-		it.each(Object.values(FMT_NUMBER))('getHashRate', async format => {
-			const hashRate = await web3Eth.getHashRate({
-				number: format as FMT_NUMBER,
-				bytes: FMT_BYTES.HEX,
+		describeIf(getSystemTestBackend() !== BACKEND.HARDHAT)('getHashRate', () => {
+			it.each(Object.values(FMT_NUMBER))('getHashRate', async format => {
+				const hashRate = await web3Eth.getHashRate({
+					number: format as FMT_NUMBER,
+					bytes: FMT_BYTES.HEX,
+				});
+				// eslint-disable-next-line jest/no-standalone-expect
+				expect(typeof hashRate).toBe(mapFormatToType[format as string]);
 			});
-			expect(typeof hashRate).toBe(mapFormatToType[format as string]);
 		});
 
 		it('getAccounts', async () => {
-			const account = await createNewAccount({ unlock: true });
-			const accList = await web3Eth.getAccounts();
-			const accListLowerCase = accList.map((add: string) => add.toLowerCase());
-			expect(accListLowerCase).toContain(account.address.toLowerCase());
+			// hardhat does not have support importrawkey, so we can't add new accounts rather just check the default 20 accounts
+			if (getSystemTestBackend() !== BACKEND.HARDHAT) {
+				const account = await createNewAccount({ unlock: true });
+				const accList = await web3Eth.getAccounts();
+				const accListLowerCase = accList.map((add: string) => add.toLowerCase());
+				// eslint-disable-next-line jest/no-conditional-expect
+				expect(accListLowerCase).toContain(account.address.toLowerCase());
+			} else {
+				const accList = await web3Eth.getAccounts();
+				// eslint-disable-next-line jest/no-conditional-expect
+				expect(accList).toHaveLength(20);
+			}
 		});
 
 		it.each(Object.values(FMT_NUMBER))('getBlockNumber', async format => {
@@ -264,6 +274,89 @@ describe('rpc', () => {
 			validateTransaction(res as TransactionInfo);
 			expect(res?.hash).toBe(receipt.transactionHash);
 		});
+		it('check get transaction fields', async () => {
+			const receipt0 = await web3Eth.sendTransaction({
+				from: tempAcc.address,
+				value: '0x1',
+				to: tempAcc2.address,
+				type: BigInt(0),
+			});
+			const res0 = await web3Eth.getTransaction(receipt0.transactionHash);
+
+			expect(res0.type).toBeDefined();
+			expect(res0.hash).toBeDefined();
+			expect(res0.nonce).toBeDefined();
+			expect(res0.blockHash).toBeDefined();
+			expect(res0.blockNumber).toBeDefined();
+			expect(res0.transactionIndex).toBeDefined();
+			expect(res0.from).toBeDefined();
+			expect(res0.to).toBeDefined();
+			expect(res0.value).toBeDefined();
+			expect(res0.gas).toBeDefined();
+			expect(res0.input).toBeDefined();
+			expect(res0.r).toBeDefined();
+			expect(res0.s).toBeDefined();
+			expect(res0.v).toBeDefined();
+			expect(res0.data).toBeDefined();
+			expect(res0?.hash).toBe(receipt0.transactionHash);
+
+			expect(res0.gasPrice).toBeDefined();
+
+			const receipt1 = await web3Eth.sendTransaction({
+				from: tempAcc.address,
+				value: '0x1',
+				maxPriorityFeePerGas: BigInt(500000000),
+				maxFeePerGas: BigInt(500000000),
+				to: tempAcc2.address,
+				type: BigInt(1),
+			});
+			const res1 = await web3Eth.getTransaction(receipt1.transactionHash);
+			expect(res1.type).toBeDefined();
+			expect(res1.hash).toBeDefined();
+			expect(res1.nonce).toBeDefined();
+			expect(res1.blockHash).toBeDefined();
+			expect(res1.blockNumber).toBeDefined();
+			expect(res1.transactionIndex).toBeDefined();
+			expect(res1.from).toBeDefined();
+			expect(res1.to).toBeDefined();
+			expect(res1.value).toBeDefined();
+			expect(res1.gas).toBeDefined();
+			expect(res1.input).toBeDefined();
+			expect(res1.r).toBeDefined();
+			expect(res1.s).toBeDefined();
+			expect(res1.data).toBeDefined();
+			expect(res1?.hash).toBe(receipt1.transactionHash);
+			expect(res1.gasPrice).toBeDefined();
+			expect(res1.accessList).toBeDefined();
+
+			const receipt2 = await web3Eth.sendTransaction({
+				from: tempAcc.address,
+				value: '0x1',
+				to: tempAcc2.address,
+				type: BigInt(2),
+			});
+			const res2 = await web3Eth.getTransaction(receipt2.transactionHash);
+
+			expect(res2.type).toBeDefined();
+			expect(res2.hash).toBeDefined();
+			expect(res2.nonce).toBeDefined();
+			expect(res2.blockHash).toBeDefined();
+			expect(res2.blockNumber).toBeDefined();
+			expect(res2.transactionIndex).toBeDefined();
+			expect(res2.from).toBeDefined();
+			expect(res2.to).toBeDefined();
+			expect(res2.value).toBeDefined();
+			expect(res2.gas).toBeDefined();
+			expect(res2.input).toBeDefined();
+			expect(res2.r).toBeDefined();
+			expect(res2.s).toBeDefined();
+			expect(res2.data).toBeDefined();
+			expect(res2?.hash).toBe(receipt2.transactionHash);
+			expect(res2.maxFeePerGas).toBeDefined();
+			expect(res2.maxPriorityFeePerGas).toBeDefined();
+			expect(res2.accessList).toBeDefined();
+			expect(res2.gasPrice).toBeDefined();
+		});
 
 		itIf(getSystemTestBackend() !== 'ganache')('getPendingTransactions', async () => {
 			const tx = web3Eth.sendTransaction({
@@ -287,10 +380,10 @@ describe('rpc', () => {
 				times: 1,
 			});
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-			const res: TransactionReceipt = (await web3Eth.getTransactionReceipt(
+			const res: TransactionReceipt = await web3Eth.getTransactionReceipt(
 				// TODO: add more scenarios in future release with block number
 				receipt.transactionHash as string,
-			))!;
+			);
 			validateReceipt(res);
 			expect(res?.transactionHash).toBe(receipt.transactionHash);
 		});
@@ -310,12 +403,6 @@ describe('rpc', () => {
 			expect(res).toBeDefined();
 		});
 
-		itIf(!['ganache', 'geth'].includes(getSystemTestBackend()))('getWork', async () => {
-			const res = await web3Eth.getWork();
-			// eslint-disable-next-line jest/no-standalone-expect
-			expect(res[0]).toBeDefined();
-		});
-
 		itIf(!['geth', 'ganache'].includes(getSystemTestBackend()))('requestAccounts', () => {
 			// const res = await web3Eth.requestAccounts();
 			// eslint-disable-next-line jest/no-standalone-expect
@@ -323,7 +410,8 @@ describe('rpc', () => {
 			// expect(res[0]).toEqual(tempAcc.address);
 		});
 
-		itIf(getSystemTestBackend() !== 'ganache')('getProof', async () => {
+		// hardhat does not support getProof
+		itIf(getSystemTestBackend() !== BACKEND.HARDHAT)('getProof', async () => {
 			const numberData = BigInt(10);
 			const stringData = 'str';
 			const boolData = true;

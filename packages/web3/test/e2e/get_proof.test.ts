@@ -18,15 +18,20 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 
 import Web3, { AccountObject } from '../../src';
 import { getSystemE2ETestProvider } from './e2e_utils';
-import { closeOpenConnection, getSystemTestBackend } from '../shared_fixtures/system_tests_utils';
+import {
+	closeOpenConnection,
+	getSystemTestBackend,
+	BACKEND,
+} from '../shared_fixtures/system_tests_utils';
 import { toAllVariants } from '../shared_fixtures/utils';
 import { mainnetBlockData, mainnetProof } from './fixtures/mainnet';
 import { sepoliaBlockData, sepoliaProof } from './fixtures/sepolia';
 
 describe(`${getSystemTestBackend()} tests - getProof`, () => {
 	const provider = getSystemE2ETestProvider();
-	const blockData = getSystemTestBackend() === 'sepolia' ? sepoliaBlockData : mainnetBlockData;
-	const expectedProof = getSystemTestBackend() === 'sepolia' ? sepoliaProof : mainnetProof;
+	const blockData =
+		getSystemTestBackend() === BACKEND.SEPOLIA ? sepoliaBlockData : mainnetBlockData;
+	const expectedProof = getSystemTestBackend() === BACKEND.SEPOLIA ? sepoliaProof : mainnetProof;
 
 	let web3: Web3;
 
@@ -50,13 +55,13 @@ describe(`${getSystemTestBackend()} tests - getProof`, () => {
 				| 'blockNumber';
 		}>({
 			block: [
-				'earliest',
+				// 'earliest', // error "distance to target block exceeds maximum proof window"
 				'latest',
-				'pending',
+				// 'pending', // error "unknown block number"
 				'safe',
 				'finalized',
-				'blockHash',
-				'blockNumber',
+				// 'blockHash', // error "distance to target block exceeds maximum proof window"
+				// 'blockNumber', // error "distance to target block exceeds maximum proof window"
 			],
 		}),
 	)('getProof', async ({ block }) => {
@@ -68,6 +73,14 @@ describe(`${getSystemTestBackend()} tests - getProof`, () => {
 
 		if (block === 'blockHash' || block === 'blockNumber') {
 			expect(result).toEqual(expectedProof);
+		} else if (block === 'pending') {
+			expect(result).toMatchObject({
+				balance: expect.any(BigInt),
+				codeHash: expect.any(String),
+				nonce: expect.any(BigInt),
+				storageHash: expect.any(String),
+				storageProof: expect.any(Array<string>),
+			});
 		} else {
 			expect(result).toMatchObject<AccountObject>({
 				accountProof: expect.any(Array<string>),

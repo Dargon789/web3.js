@@ -15,8 +15,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = require('prism-react-renderer').themes.github;
+const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 const { join } = require('path');
 
 const packages = [
@@ -37,12 +37,13 @@ const packages = [
 	'web3-providers-http',
 	'web3-providers-ws',
 	'web3-providers-ipc',
+	'web3-account-abstraction',
 ];
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-	title: 'web3.js',
-	tagline: 'The ultimate JavaScript library for Ethereum',
+	title: 'Web3.js',
+	tagline: 'Powerful TypeScript libraries for Ethereum interaction and utility functions',
 	url: 'https://docs.web3js.org',
 	baseUrl: '/',
 	onBrokenLinks: 'throw',
@@ -52,7 +53,7 @@ const config = {
 	// GitHub pages deployment config.
 	// If you aren't using GitHub pages, you don't need these.
 	organizationName: 'ChainSafe', // Usually your GitHub org/user name.
-	projectName: 'web3.js', // Usually your repo name.
+	projectName: 'Web3.js', // Usually your repo name.
 
 	// Even if you don't use internalization, you can use this field to set useful
 	// metadata like html lang. For example, if your site is Chinese, you may want
@@ -65,7 +66,7 @@ const config = {
 	plugins: [
 		'@docusaurus/theme-live-codeblock',
 		[
-			'@mpetrunic/docusaurus-plugin-typedoc-api',
+			'docusaurus-plugin-typedoc-api',
 			{
 				projectRoot: join(__dirname, '..'),
 				// Monorepo
@@ -115,21 +116,32 @@ const config = {
 				},
 				items: [
 					{
-						to: '/',
-						activeBasePath: '/',
-						label: 'Documentation',
+						to: '/guides/getting_started/quickstart',
+						activeBasePath: '/guides',
+						label: 'Guides & Tutorials',
 						position: 'left',
 					},
 					{
-						to: 'api', // 'api' is the 'out' directory
+						to: '/libdocs/ABI',
+						activeBasePath: '/libdocs',
+						label: 'Packages',
+						position: 'left',
+					},
+					{
+						to: '/api', // 'api' is the 'out' directory
 						label: 'API',
 						position: 'left',
 					},
 					{
-						to: '/glossary/json_interface',
-						activeBasePath: '/glossary/',
+						to: '/glossary',
+						activeBasePath: '/glossary',
 						label: 'Glossary',
 						position: 'left',
+					},
+					{
+						to: '/web3_playground',
+						label: 'Playground',
+						position: 'right',
 					},
 					{
 						href: 'https://github.com/ChainSafe/web3.js/tree/4.x/',
@@ -173,6 +185,44 @@ const config = {
 				 */
 				playgroundPosition: 'bottom',
 			},
+			image: 'https://pbs.twimg.com/profile_images/1746099108937363456/duG_Pqem_400x400.jpg',
+			metadata: [
+				{
+					name: 'keywords',
+					content:
+						'web3.js, web3, web3js, ethereum, ethereum json rpc, blockchain development, smart contracts, dapps, dApp development',
+				},
+				{
+					name: 'description',
+					content:
+						'Collection of comprehensive TypeScript libraries for Interaction with the Ethereum JSON RPC API and utility functions.',
+				},
+				{ name: 'og:title', content: 'Web3.js Documentation' },
+				{
+					name: 'og:description',
+					content:
+						'Collection of comprehensive TypeScript libraries for Interaction with the Ethereum JSON RPC API and utility functions.',
+				},
+				{ name: 'og:type', content: 'website' },
+				{ name: 'og:url', content: 'https://docs.web3js.org' },
+				{
+					name: 'og:image',
+					content:
+						'https://pbs.twimg.com/profile_images/1746099108937363456/duG_Pqem_400x400.jpg',
+				},
+				{ name: 'twitter:card', content: 'summary_large_image' },
+				{ name: 'twitter:title', content: 'Web3.js Documentation' },
+				{
+					name: 'twitter:description',
+					content:
+						'Official documentation for web3.js, the Type/JavaScript library for interacting with the Ethereum blockchain.',
+				},
+				{
+					name: 'twitter:image',
+					content:
+						'https://raw.githubusercontent.com/web3/web3.js/4.x/assets/logo/web3js.jpg',
+				},
+			],
 		}),
 };
 

@@ -53,7 +53,9 @@ import 'setimmediate';
 import { Web3Eth } from './web3_eth.js';
 
 export * from './web3_eth.js';
+export * from './utils/decoding.js';
 export * from './schemas.js';
+export * from './constants.js';
 export * from './types.js';
 export * from './validation.js';
 export * from './rpc_method_wrappers.js';
@@ -61,6 +63,9 @@ export * from './utils/format_transaction.js';
 export * from './utils/prepare_transaction_for_signing.js';
 export * from './web3_subscriptions.js';
 export { detectTransactionType } from './utils/detect_transaction_type.js';
-export { transactionBuilder } from './utils/transaction_builder.js';
+export { transactionBuilder, getTransactionFromOrToAttr } from './utils/transaction_builder.js';
+export { waitForTransactionReceipt } from './utils/wait_for_transaction_receipt.js';
+export { trySendTransaction } from './utils/try_send_transaction.js';
+export { SendTxHelper } from './utils/send_tx_helper.js';
 
 export default Web3Eth;
