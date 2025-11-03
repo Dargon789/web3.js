@@ -100,7 +100,7 @@ export class PublicNodeProvider<
 	// eslint-disable-next-line class-methods-use-this
 	public getRPCURL(network: Network, transport: Transport, _: string, _host: string) {
 		if (!PublicNodeProvider.networkHostMap[network]) {
-			throw new Error('Network info not avalible.');
+			throw new Error('Network info not available.');
 		}
 		const defaultHost = `${PublicNodeProvider.networkHostMap[network]}.publicnode.com`;
 		const host = isValid(_host) ? _host : defaultHost;
