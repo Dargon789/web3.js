@@ -4,6 +4,7 @@ module.exports = {
     ... baseDocConfig,
 
     entryPoints: [
+        "./packages/web3-account-abstraction/src/index.ts", // Entry point for AccountAbstraction package documentation
         "./packages/web3-eth/src/web3_eth.ts",
         "./packages/web3-eth-accounts/src/wallet.ts",
         "./packages/web3-eth-accounts/src/account.ts",
