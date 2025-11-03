@@ -2762,7 +2762,7 @@ If there are any bugs, improvements, optimizations or any new feature proposal f
 
 #### web3-eth-abi
 
--   `decodeLog` , `decodeParametersWith` , `decodeParameters` and `decodeParameters` now accepts first immutable param as well (#7288)
+-   `decodeLog`, `decodeParametersWith`, and `decodeParameters` now accept the first immutable parameter as well (#7288)
 
 #### web3-utils
 
