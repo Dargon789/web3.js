@@ -4,7 +4,7 @@ on:
         branches:
             - '4.x'
         tags:
-            - v4*
+            -'main*
     pull_request:
         branches:
             - '4.x'
