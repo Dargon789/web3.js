@@ -28,9 +28,9 @@ import { Web3RequestManager, Web3Subscription, Web3SubscriptionManager } from 'w
 import { decodeEventABI } from 'web3-eth';
 
 /**
- * LogSubscription to be used to subscribe to events logs.
+ * ContractLogsSubscription to be used to subscribe to events logs.
  *
- * Following events are supported and can be accessed with either {@link LogsSubscription.once} or ${@link LogsSubscription.on} methods.
+ * Following events are supported and can be accessed with either {@link ContractLogsSubscription.once} or ${@link ContractLogsSubscription.on} methods.
  *
  * - **connected**: Emitted when the subscription is connected.
  * - **data**: Fires on each incoming event with the event object as argument.
@@ -81,7 +81,7 @@ import { decodeEventABI } from 'web3-eth';
  * }
  * ```
  */
-export class LogsSubscription extends Web3Subscription<
+export class ContractLogsSubscription extends Web3Subscription<
 	{
 		data: EventLog;
 		changed: EventLog & { removed: true };
@@ -145,8 +145,10 @@ export class LogsSubscription extends Web3Subscription<
 			returnFormat?: DataFormat;
 		},
 	) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-		super(args, options as any);
+		super(
+			args,
+			options as { subscriptionManager: Web3SubscriptionManager; returnFormat?: DataFormat },
+		);
 
 		this.address = args.address;
 		this.topics = args.topics;
@@ -162,3 +164,7 @@ export class LogsSubscription extends Web3Subscription<
 		return decodeEventABI(this.abi, data as LogsInput, this.jsonInterface, super.returnFormat);
 	}
 }
+/**
+ * @deprecated LogsSubscription is renamed to ContractLogsSubscription in this package to not be confused with LogsSubscription at 'web3-eth'.
+ */
+export const LogsSubscription = ContractLogsSubscription;

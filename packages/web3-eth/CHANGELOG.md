@@ -279,7 +279,7 @@ Documentation:
 
 -   Adds the same `{transactionSchema?: ValidationSchemaInput}` that exists in `formatTransaction` to `validateTransactionForSigning`
 
-## [Unreleased]
+## [4.10.0]
 
 ### Changed
 
@@ -288,3 +288,17 @@ Documentation:
 ### Added
 
 -   `populateGasPrice` function now checks `Web3Context.config.ignoreGasPricing`. If `ignoreGasPricing` is true, gasPrice will not be estimated (#7320)
+
+## [4.11.0]
+
+### Added
+
+-   `createNewPendingTransactionFilter` , `createNewFilter` , `createNewBlockFilter` , `uninstallFilter` , `getFilterChanges` and `getFilterLogs` are exported from `Web3Eth` and `filtering_rpc_method_wrappers` (#7353)
+
+## [4.11.1]
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+## [Unreleased]

@@ -208,8 +208,23 @@ Documentation:
 
 -   Add COMMITTED to BlockTags (#7124)
 
-## [Unreleased]
+## [1.8.1]
 
-### Changed
+### Fixed
 
 -   update the type for `baseFeePerGas` at `web3.eth.getFeeHistory` to be a number. (#7291)
+
+## [1.9.0]
+
+### Added
+
+-   `FilterParams` type added (#7353)
+
+## [1.10.0]
+
+#### Added
+
+-   Add signature related types. (#7374)
+-   Updated Typescript version 4 -> 5 (#7272)
+
+## [Unreleased]

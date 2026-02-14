@@ -234,8 +234,20 @@ Documentation:
 
 -   `_sendPendingRequests` will catch unhandled errors from `_sendToSocket` (#6968)
 
-## [Unreleased]
+## [4.3.2]
 
 ### Fixed
 
 -   fix `padRight` validation failure on large `uint` (#7265)
+
+## [4.3.3]
+
+### Fixed
+
+-   Make `fromWei` return "0" when input is `0` (#7387)
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+## [Unreleased]

@@ -2501,7 +2501,7 @@ If there are any bugs, improvements, optimizations or any new feature proposal f
 #### web3-validator
 
 -   The JSON schema conversion process now correctly assigns an id when the `abi.name` is not available, for example, in the case of public mappings. (#6981)
--   `browser` entry point that was pointing to an non-existing bundle file was removed from `package.json` (#7015)
+-   `browser` entry point that was pointing to a non-existing bundle file was removed from `package.json` (#7015)
 
 #### web3-core
 
@@ -2727,20 +2727,146 @@ If there are any bugs, improvements, optimizations or any new feature proposal f
 -   `Web3.providers` namespace exports `type EIP6963ProviderResponse = Map<string, EIP6963ProviderDetail>`. Return type for the static `Web3.requestEIP6963Providers` function is now `Promise<EIP6963ProviderResponse>`. (#7239)
 -   The callback function provided to the static `Web3.onNewProviderDiscovered` function expects a parameter of type `EIP6963ProvidersMapUpdateEvent` as opposed to `EIP6963AnnounceProviderEvent`. (#7242)
 
-## [Unreleased]
+## [4.14.0]
 
 ### Added
+
+#### web3-core
+
+-   Added new property `ignoreGasPricing` to `Web3ConfigOptions`. If `ignoreGasPricing` is true, gasPrice will not be estimated (#7320)
 
 #### web3-eth
 
 -   `syncing` subscription now supports Besu and Nethermind payload format
+-   `populateGasPrice` function now checks `Web3Context.config.ignoreGasPricing`. If `ignoreGasPricing` is true, gasPrice will not be estimated (#7320)
 
 ### Changed
+
+#### web3
+
+-   Exported EIP-6963 types are no longer under the `providers` namespace. (#7270)
 
 #### web3-eth
 
 -   Allow `getEthereumjsTxDataFrom` to return additional fields that may be passed if using a `customTransactionSchema`.
 
+#### web3-types
+
+-   update the type for `baseFeePerGas` at `web3.eth.getFeeHistory` to be a number. (#7291)
+
+#### web3-eth
+
+-   Allow specifying percentage based factor in Web3Eth.calculateFeeData Param baseFeePerGasFactor #7332
+
+### Fixed
+
+#### web3-eth-abi
+
+-   `decodeLog` , `decodeParametersWith` , `decodeParameters` and `decodeParameters` now accepts first immutable param as well (#7288)
+
+#### web3-utils
+
+-   fix `padRight` validation failure on large `uint` (#7265)
+
+## [4.15.0]
+
+### Added
+
+#### web3-eth
+
+-   `createNewPendingTransactionFilter` , `createNewFilter` , `createNewBlockFilter` , `uninstallFilter` , `getFilterChanges` and `getFilterLogs` are exported from `Web3Eth` and `filtering_rpc_method_wrappers` (#7353)
+
+#### web3-eth-abi
+
+-   added `decodeFunctionCall` and `decodeFunctionReturn`. (#7345)
+
+#### web3-eth-accounts
+
+-   `hashMessage` now has a new optional param `skipPrefix` with a default value of `false`. A new function `signRaw` was added to sign a message without prefix. (#7346)
+
+#### web3-rpc-providers
+
+-   PublicNodeProvider was added (#7322)
+
+#### web3-types
+
+-   `FilterParams` type added (#7353)
+
+### Fixed
+
+#### web3-eth-contracts
+
+-   Fix Contract methods input param type any[] (#7340)
+
+## [4.16.0]
+
+### Fixed
+
 #### web3
 
--   Exported EIP-6963 types are no longer under the `providers` namespace. (#7270)
+-   Export Web3Account, Wallet and signature related types. (#7374)
+
+#### web3-utils
+
+-   Make `fromWei` return "0" when input is `0` (#7387)
+
+### Removed
+
+#### web3-eth-accounts
+
+-   Move signature related types to web3-types. Re-export them for backwards compatibility. (#7374)
+
+### Added
+
+#### web3-types
+
+-   Add signature related types. (#7374)
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth-accounts
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-core
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-account-abstraction
+
+-   RC release
+
+#### web3-errors
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth-contract
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-rpc-providers
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-utils
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+#### web3-eth-abi
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
+## [Unreleased]
+
+### Added
+
+#### web3-validator
+
+-   Add web3-validator dist path for react-native builds (#7416)

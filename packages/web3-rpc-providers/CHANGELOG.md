@@ -58,4 +58,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Updated rate limit error of QuickNode provider for HTTP transport
 -   Added optional `HttpProviderOptions | SocketOptions` in `Web3ExternalProvider` and `QuickNodeProvider` for provider configs
 
+## [1.0.0-rc.3]
+
+### Added
+
+-   PublicNodeProvider was added (#7322)
+
+## [1.0.0-rc.4]
+
+### Added
+
+-   Updated Typescript version 4 -> 5 (#7272)
+
 ## [Unreleased]
