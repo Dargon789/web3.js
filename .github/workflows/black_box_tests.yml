@@ -1,4 +1,6 @@
 name: 'Black Box Tests'
+permissions:
+    contents: read
 on:
     push:
         branches:
